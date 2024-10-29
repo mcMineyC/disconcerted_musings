@@ -3,6 +3,10 @@ const fs = require("fs");
 const app = express();
 const port = 3000;
 const { markdownUtils } = require("./markdown-utils");
+const { updateUtils } = require("./update-utils");
+
+const gitDirectory = "./data/src";
+const git = require("simple-git")(gitDirectory);
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -44,11 +48,12 @@ app.get("/post/:id", async (req, res) => {
   res.send(htmlContent);
 });
 
-app.get("/update", async (req, res) => {
+app.post("/update", express.json(), async (req, res) => {
   try {
-    await updateUtils.git();
+    await updateUtils.git(git);
     res.status(200).send("Update successful");
   } catch (error) {
+    console.error(error);
     res.status(500).send("Update failed");
   }
 });
