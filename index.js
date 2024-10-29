@@ -44,15 +44,7 @@ app.get("/post/:id", async (req, res) => {
   res.send(htmlContent);
 });
 
-app.post("/update", express.json(), async (req, res) => {
-  const secretToken = process.env.secretToken;
-  const requestToken = req.body.token;
-
-  if (!secretToken || secretToken !== requestToken) {
-    res.status(401).send("Unauthorized");
-    return;
-  }
-
+app.get("/update", async (req, res) => {
   try {
     await updateUtils.git();
     res.status(200).send("Update successful");
