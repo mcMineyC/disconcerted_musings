@@ -53,19 +53,21 @@ app.post("/update", express.json(), async (req, res) => {
   const requestToken = req.body.token;
 
   if (!secretToken || secretToken !== requestToken) {
-    res.status(401).send("Unauthorized");
+    res.status(401).send({ status: "unauthorized" });
     return;
   }
   try {
     await updateUtils.git(git);
-    res.status(200).send("Update successful");
+    res.status(200).send({ status: "success" });
   } catch (error) {
     console.error(error);
-    res.status(500).send("Update failed");
+    res.status(500).send({ status: "error" });
   }
 });
 
 async function main() {
+  console.log("Starting server...");
+  console.log("\tSecret token is: ", process.env.SECRET_TOKEN);
   if (!fs.existsSync("./data")) {
     await fs.mkdir("./data");
     if (!fs.existsSync("./data/src")) {
