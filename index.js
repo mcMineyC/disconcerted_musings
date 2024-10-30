@@ -23,8 +23,8 @@ app.use(function (req, res, next) {
 
 app.get("/", (req, res) => {
   const htmlContent = markdownUtils.process(
-    "# Hello World\nThis is a test markdown file, being rendered on the fly\n - A simple list i think\n - Another item\n\n## A subheading\n\nThis is a paragraph\n\n[Link to Google](https://www.google.com)\n\n> A blockquote\n\n**Bold text**\n\n*Italic text*",
-  );
+    "# Hello World\nThis is a test markdown file, being rendered on the fly\n - A simple list i think\n - Another item\n   - nested?\n\n## A subheading\n\nThis is a paragraph\n\n[Link to Google](https://www.google.com)\n\n> A blockquote\n\n**Bold text**\n\n*Italic text*",
+  ).content;
   res.send(htmlContent);
 });
 

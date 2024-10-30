@@ -1,6 +1,41 @@
 <!doctype html>
 <html>
   <head>
+    <style>
+      html {
+        --list-indent: 20px;
+        --list-marker-spacing: 5px;
+        --line-spacing: 3px;
+        --font-size: 16px;
+      }
+      body {
+        font-family: sans-serif;
+      }
+      h1 {
+        color: #333;
+      }
+      h2 {
+        color: #666;
+      }
+      p {
+        color: #999;
+        margin-top: var(--line-spacing) !important;
+        margin-bottom: var(--line-spacing) !important;
+      }
+      {{ list-level-css }}
+      li:before {
+        content: "";
+        margin-left: calc(-16px + var(--list-marker-spacing));
+        /* margin-right: var(--list-marker-spacing) !important; */
+      }
+      .empty-line{
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+      }
+    </style>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
     <title>{{ title-pretty }}</title>
   </head>
   <body>

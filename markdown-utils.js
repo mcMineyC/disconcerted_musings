@@ -5,23 +5,53 @@ function processMarkdownToHtml(mdString) {
   mdString = mdString.replace(/^#### (.*$)/gm, "<h4>$1</h4>");
   mdString = mdString.replace(/^##### (.*$)/gm, "<h5>$1</h5>");
   mdString = mdString.replace(/^###### (.*$)/gm, "<h6>$1</h6>");
-  mdString = mdString.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-  mdString = mdString.replace(/\*(.*?)\*/g, "<em>$1</em>");
+  mdString = mdString.replace(/\*\*([\s\S]*?)\*\*/g, "<strong>$1</strong>");
+  mdString = mdString.replace(/\*([\s\S]*?)\*/g, "<em>$1</em>");
   mdString = mdString.replace(
     /\[([^\]]+)\]\(([^\)]+)\)/g,
     '<a href="$2">$1</a>',
   );
-  mdString = mdString.replace(/^\* (.*$)/gm, "<li>$1</li>");
-  mdString = mdString.replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>");
-  mdString = mdString.replace(/^\d+\. (.*$)/gm, "<li>$1</li>");
-  mdString = mdString.replace(/(<li>.*<\/li>)/gs, "<ol>$1</ol>");
+  var highestLevel = 0;
+  mdString = mdString.replace(
+    /^( *)- (.*$)/gm,
+    function (match, indent, content) {
+      const spaces = indent.length;
+      const level = Math.floor(spaces / 2);
+      if (level > highestLevel) highestLevel = level;
+      return `<li class="indent-level-${level}" style="--list-level: ${level}">${content}</li>`;
+    },
+  );
+
+  // mdString = mdString.replace(/^\d+\. (.*$)/gm, "<li>$1</li>");
+  // mdString = mdString.replace(/(<li>.*<\/li>)/gs, "<ol>$1</ol>");
   mdString = mdString.replace(/^\> (.*$)/gm, "<blockquote>$1</blockquote>");
-  mdString = mdString.replace(/\n\n([^\n]+)\n\n/g, "<p>$1</p>");
-  return mdString.trim();
+
+  // Split into lines and wrap normal text in <p> tags
+  const lines = mdString.split("\n");
+  const wrappedLines = lines.map((line) => {
+    if (line.trim() === "") return '<p class="empty-line">&#10240;&#x2800;</p>';
+    if (line.match(/^<(h[1-6]|li|blockquote|ul|ol)/)) return line;
+    if (line.match(/^<(strong|em)/)) return line;
+    if (line.match(/<\/(strong|em)>$/)) return line;
+    return `<p>${line}</p>`;
+  });
+  mdString = wrappedLines.join("\n");
+  return {
+    content: mdString.trim(),
+    listStyling: generateIndentCSS(highestLevel),
+  };
+}
+
+function generateIndentCSS(levels) {
+  let css = "";
+  for (let i = 0; i <= levels; i++) {
+    css += `.indent-level-${i} { margin-left: calc(var(--list-indent) * ${i}); }\n`;
+  }
+  return css;
 }
 
 function renderMarkdown(mdContent, title, mdTemplate) {
-  const htmlContent = processMarkdownToHtml(mdContent);
+  const htmlObject = processMarkdownToHtml(mdContent);
   let prettyTitle = "The Disconcerted Musings of Somebody | " + title;
   if (title.match(/^(\d{1,2})-(\d{1,2})-(\d{2}|\d{4})$/)) {
     prettyTitle = "Somebody's Daily Note: " + title;
@@ -29,7 +59,8 @@ function renderMarkdown(mdContent, title, mdTemplate) {
   return mdTemplate
     .replace(/\{\{ title \}\}/g, title)
     .replace(/\{\{ title-pretty \}\}/g, prettyTitle)
-    .replace(/\{\{ content \}\}/g, htmlContent);
+    .replace(/\{\{ content \}\}/g, htmlObject.content)
+    .replace(/\{\{ list-level-css \}\}/g, htmlObject.listStyling);
 }
 
 async function renderMarkdownFile(inPath, outPath, title, fs) {
