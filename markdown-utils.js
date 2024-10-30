@@ -2,6 +2,9 @@ function processMarkdownToHtml(mdString) {
   mdString = mdString.replace(/^# (.*$)/gm, "<h1>$1</h1>");
   mdString = mdString.replace(/^## (.*$)/gm, "<h2>$1</h2>");
   mdString = mdString.replace(/^### (.*$)/gm, "<h3>$1</h3>");
+  mdString = mdString.replace(/^#### (.*$)/gm, "<h4>$1</h4>");
+  mdString = mdString.replace(/^##### (.*$)/gm, "<h5>$1</h5>");
+  mdString = mdString.replace(/^###### (.*$)/gm, "<h6>$1</h6>");
   mdString = mdString.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
   mdString = mdString.replace(/\*(.*?)\*/g, "<em>$1</em>");
   mdString = mdString.replace(
@@ -17,19 +20,33 @@ function processMarkdownToHtml(mdString) {
   return mdString.trim();
 }
 
-async function renderMarkdownFile(inPath, outPath, fs) {
+function renderMarkdown(mdContent, title, mdTemplate) {
+  const htmlContent = processMarkdownToHtml(mdContent);
+  let prettyTitle = "The Disconcerted Musings of Somebody | " + title;
+  if (title.match(/^(\d{1,2})-(\d{1,2})-(\d{2}|\d{4})$/)) {
+    prettyTitle = "Somebody's Daily Note: " + title;
+  }
+  return mdTemplate
+    .replace(/\{\{ title \}\}/g, title)
+    .replace(/\{\{ title-pretty \}\}/g, prettyTitle)
+    .replace(/\{\{ content \}\}/g, htmlContent);
+}
+
+async function renderMarkdownFile(inPath, outPath, title, fs) {
   try {
     const mdContent = fs.readFileSync(inPath, "utf8");
-    console.log(mdContent);
-    const htmlContent = processMarkdownToHtml(mdContent);
-    fs.writeFileSync(outPath, htmlContent);
+    const mdTemplate = fs.readFileSync("./template.html", "utf8");
+    const renderedMd = renderMarkdown(mdContent, title, mdTemplate);
+    fs.writeFileSync(outPath, renderedMd);
   } catch (err) {
     console.error(err);
     return false;
   }
   return true;
 }
+
 export const markdownUtils = {
   render: renderMarkdownFile,
   process: processMarkdownToHtml,
+  renderString: renderMarkdown,
 };
