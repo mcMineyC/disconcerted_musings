@@ -1,24 +1,47 @@
 <!doctype html>
 <html>
   <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
     <style>
-      html {
-        --list-indent: 20px;
+      :root {
+        --indent: 20px;
         --list-marker-spacing: 5px;
         --line-spacing: 3px;
         --font-size: 16px;
+        --background-color: #1f1f24;
+        --middle-color: #303035;
+        --top-color: #414045;
+        --text-color: #dadada;
+        --link-color: rgb(235, 139, 182);
+        --bold-weight: 600;
+        --header-align: left;
+        font-family: "Inter", "JetBrainsMono Nerd";
       }
-      body {
-        font-family: sans-serif;
+      a {
+        cursor: pointer !important;
       }
-      h1 {
-        color: #333;
+      a:visited, a:active {
+        color: var(--link-color);
       }
-      h2 {
-        color: #666;
+      a:hover {
+        color: var(--text-color);
+      }
+      strong{
+        font-weight: calc(var(--bold-weight) + 100);
+      }
+      h1,h2,h3,h4,h5,h6{
+        font-weight: var(--bold-weight);
+      }
+      html {
+        background-color: var(--background-color);
+        color: var(--text-color);
       }
       p {
-        color: #999;
         margin-top: var(--line-spacing) !important;
         margin-bottom: var(--line-spacing) !important;
       }
@@ -32,6 +55,36 @@
         margin-top: 0 !important;
         margin-bottom: 0 !important;
       }
+      body{
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        width: 100%;
+        margin: 0;
+      }
+      .header {
+        color: var(--text-color);
+        margin: 0;
+        margin-top: 3rem;
+        padding-bottom: 0.5rem;
+        text-align: var(--header-align);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .bounded-width{
+        width: 720px;
+        max-width: 100%;
+        min-width: 0;
+      }
+      .center-content{
+        /* background-color: var(--middle-color); */
+        background-color: color-mix(in srgb, var(--middle-color) 25%, var(--background-color));
+        padding: 0 1.5rem;
+      }
+      #content{
+        padding-bottom: 3rem;
+      }
     </style>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -39,8 +92,9 @@
     <title>{{ title-pretty }}</title>
   </head>
   <body>
-    <h1>{{ title }}</h1>
-    <h2>{{ title-pretty }}</h2>
-    <p>{{ content }}</p>
+    <div class="header-box bounded-width center-content">
+      <h2 class="header">{{ title }}</h2>
+    </div>
+    <div id="content" class="bounded-width center-content">{{ content }}</div>
   </body>
 </html>

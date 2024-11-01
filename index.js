@@ -4,6 +4,7 @@ const app = express();
 const port = 3000;
 const { markdownUtils } = require("./markdown-utils");
 const { updateUtils } = require("./update-utils");
+const { renderer } = require("./rendering");
 
 const gitDirectory = "./data/src";
 const git = require("simple-git")(gitDirectory);
@@ -22,10 +23,21 @@ app.use(function (req, res, next) {
 });
 
 app.get("/", (req, res) => {
-  const htmlContent = markdownUtils.process(
-    "# Hello World\nThis is a test markdown file, being rendered on the fly\n - A simple list i think\n - Another item\n   - nested?\n\n## A subheading\n\nThis is a paragraph\n\n[Link to Google](https://www.google.com)\n\n> A blockquote\n\n**Bold text**\n\n*Italic text*",
-  ).content;
-  res.send(htmlContent);
+  var index = fs.readFileSync("./data/cache/index.html", "utf8");
+  if (!fs.existsSync("data/cache/list/html") || true) {
+    try {
+      renderer.renderPosts(fs);
+    } catch (err) {
+      console.error(err);
+      res.status(500).send("Internal server error");
+      return;
+    }
+  }
+  index.replace(
+    "{{ post-list }}",
+    fs.readFileSync("data/cache/list.html", "utf8"),
+  );
+  res.send(index);
 });
 
 app.get("/post/:id", async (req, res) => {
@@ -73,7 +85,7 @@ app.get("/wip/:id", async (req, res) => {
     );
     res.send(htmlContent);
   } catch (error) {
-    res.status(500).send("Internal server error\n" + error);
+    res.status(500).send("Internal server error\n<br>" + error);
     return;
   }
 });
@@ -87,6 +99,11 @@ app.post("/update", express.json(), async (req, res) => {
   }
   try {
     await updateUtils.git(git);
+    try {
+      await fs.deleteSync("./data/cache/list.html");
+    } catch (error) {
+      console.error(error);
+    }
     res.status(200).send({ status: "success" });
   } catch (error) {
     console.error(error);

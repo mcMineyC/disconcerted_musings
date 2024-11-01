@@ -31,9 +31,11 @@ function processMarkdownToHtml(mdString) {
   const wrappedLines = lines.map((line) => {
     if (line.trim() === "") return '<p class="empty-line">&#10240;&#x2800;</p>';
     if (line.match(/^<(h[1-6]|li|blockquote|ul|ol)/)) return line;
-    if (line.match(/^<(strong|em)/)) return line;
-    if (line.match(/<\/(strong|em)>$/)) return line;
-    return `<p>${line}</p>`;
+    const match = line.match(/^(\W*)/)[0].replace(/\t/g, "  ");
+    const spaces = match.length;
+    const level = Math.floor(spaces / 2);
+    if (level > highestLevel) highestLevel = level;
+    return `<p class="normal-text indent-level-${level}">${line}</p>`;
   });
   mdString = wrappedLines.join("\n");
   return {
@@ -45,7 +47,7 @@ function processMarkdownToHtml(mdString) {
 function generateIndentCSS(levels) {
   let css = "";
   for (let i = 0; i <= levels; i++) {
-    css += `.indent-level-${i} { margin-left: calc(var(--list-indent) * ${i}); }\n`;
+    css += `.indent-level-${i} { margin-left: calc(var(--indent) * ${i}); }\n`;
   }
   return css;
 }

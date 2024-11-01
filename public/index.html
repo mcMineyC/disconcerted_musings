@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Simple Website</title>
+    <style>
+      html {
+        --indent: 20px;
+        --list-marker-spacing: 5px;
+        --line-spacing: 3px;
+        --font-size: 16px;
+        --background-color: #1f1f24;
+        --middle-color: #303035;
+        --top-color: rgb(65, 64, 69);
+        --text-color: #ffffff;
+      }
+      html {
+        background-color: var(--background-color);
+      }
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+      }
+      header {
+        background-color: #333;
+        color: white;
+        padding: 1rem;
+        text-align: center;
+      }
+      .bounded-width {
+        width: 720px;
+        max-width: 100%;
+        min-width: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>The Disconcerted Musings of Somebody</h1>
+    </header>
+    <div class="bounded-width">{{ post-list }}</div>
+  </body>
+</html>
