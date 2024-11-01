@@ -23,7 +23,7 @@ app.use(function (req, res, next) {
 });
 
 app.get("/", (req, res) => {
-  var index = fs.readFileSync("./data/cache/index.html", "utf8");
+  var index = fs.readFileSync("./public/index.html", "utf8");
   if (!fs.existsSync("data/cache/list/html") || true) {
     try {
       renderer.renderPosts(fs);
@@ -33,12 +33,15 @@ app.get("/", (req, res) => {
       return;
     }
   }
-  index.replace(
-    "{{ post-list }}",
+  index = index.replace(
+    /\{\{ post-list \}\}/g,
     fs.readFileSync("data/cache/list.html", "utf8"),
   );
   res.send(index);
 });
+app.get("/style.css", (req, res) =>
+  res.sendFile(__dirname + "/public/style.css"),
+);
 
 app.get("/post/:id", async (req, res) => {
   const id = req.params.id;
