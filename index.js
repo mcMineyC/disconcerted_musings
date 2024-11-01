@@ -24,10 +24,10 @@ app.use(function (req, res, next) {
 });
 
 app.get("/", (req, res) => {
-  if (!fs.existsSync("data/cache/index.html") || true) {
+  if (!fs.existsSync("data/cache/index.html")){
     try {
       var index = fs.readFileSync("./public/index.html", "utf8");
-      if (!fs.existsSync("data/cache/list.html") || true) {
+      if (!fs.existsSync("data/cache/list.html") {
         renderer.renderPosts(fs);
       }
       index = index
@@ -51,7 +51,7 @@ app.get("/style.css", (req, res) =>
 
 app.get("/post/:id", async (req, res) => {
   const id = req.params.id;
-  if (!fs.existsSync(safePath(`./data/cache/${id}.html`)) || true) {
+  if (!fs.existsSync(safePath(`./data/cache/${id}.html`))) {
     if (!fs.existsSync(safePath(`./data/src/finished/${id}.md`))) {
       res.status(404).send("Not found");
       return;
