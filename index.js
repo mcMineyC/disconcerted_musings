@@ -12,6 +12,7 @@ const git = require("simple-git")(gitDirectory);
 const secretToken = process.env.SECRET_TOKEN;
 const superSecretToken = process.env.SUPER_SECRET_TOKEN;
 const mdTemplate = fs.readFileSync("./template.html", "utf8");
+const path = require("path");
 
 app.use(function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");
@@ -50,14 +51,14 @@ app.get("/style.css", (req, res) =>
 
 app.get("/post/:id", async (req, res) => {
   const id = req.params.id;
-  if (!fs.existsSync(`./data/cache/${id}.html`) || true) {
-    if (!fs.existsSync(`./data/src/finished/${id}.md`)) {
+  if (!fs.existsSync(safePath(`./data/cache/${id}.html`)) || true) {
+    if (!fs.existsSync(safePath(`./data/src/finished/${id}.md`))) {
       res.status(404).send("Not found");
       return;
     }
     const success = await markdownUtils.render(
-      `./data/src/finished/${id}.md`,
-      `./data/cache/${id}.html`,
+      safePath(`./data/src/finished/${id}.md`),
+      safePath(`./data/cache/${id}.html`),
       id.substring(0, 1).toUpperCase() + id.substring(1),
       fs,
     );
@@ -67,7 +68,7 @@ app.get("/post/:id", async (req, res) => {
     }
   }
   const htmlContent = fs.readFileSync(
-    `./data/cache/${req.params.id}.html`,
+    safePath(`./data/cache/${req.params.id}.html`),
     "utf8",
   );
   res.send(htmlContent);
@@ -81,13 +82,13 @@ app.get("/wip/:id", async (req, res) => {
     return;
   }
   const id = req.params.id;
-  if (!fs.existsSync(`./data/src/wip/${id}.md`)) {
+  if (!fs.existsSync(safePath(`./data/src/wip/${id}.md`))) {
     res.status(404).send("Not found");
     return;
   }
   try {
     const htmlContent = await markdownUtils.renderString(
-      fs.readFileSync(`./data/src/wip/${id}.md`, "utf-8"),
+      fs.readFileSync(safePath(`./data/src/wip/${id}.md`), "utf-8"),
       id.substring(0, 1).toUpperCase() + id.substring(1),
       mdTemplate,
     );
@@ -138,3 +139,15 @@ async function main() {
 }
 
 main();
+
+function safePath(userInput) {
+  const normalizedPath = path.normalize(userInput);
+  const resolvedPath = path.resolve(__dirname, normalizedPath);
+
+  // Check if the resolved path is within the base directory
+  if (resolvedPath.startsWith(__dirname + "/data")) {
+    return resolvedPath;
+  } else {
+    throw new Error("Path traversal attempt detected!");
+  }
+}
