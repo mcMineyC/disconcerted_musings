@@ -1,5 +1,4 @@
 function renderPosts(fs) {
-  console.log("\nRendering post list");
   const posts = fs.readdirSync("./data/src/finished");
   var htmlTemplate = `
     <div class="post-block">
@@ -25,7 +24,6 @@ function renderPosts(fs) {
       title: prettyTitle,
       modified: modifiedDate,
     });
-    console.log("Rendering " + prettyTitle, modifiedDate);
   });
   plist.sort((a, b) => b.modified - a.modified);
   plist = plist.map((post) => {
@@ -43,7 +41,6 @@ function renderPosts(fs) {
       );
   });
   plist = plist.join("\n");
-  console.log(plist);
   fs.writeFileSync("./data/cache/list.html", plist);
 }
 export const renderer = {

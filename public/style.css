@@ -1,6 +1,7 @@
 a {
   cursor: pointer !important;
 }
+a,
 a:visited,
 a:active {
   color: var(--link-color);

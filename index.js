@@ -23,21 +23,26 @@ app.use(function (req, res, next) {
 });
 
 app.get("/", (req, res) => {
-  var index = fs.readFileSync("./public/index.html", "utf8");
-  if (!fs.existsSync("data/cache/list/html") || true) {
+  if (!fs.existsSync("data/cache/index.html") || true) {
     try {
-      renderer.renderPosts(fs);
+      var index = fs.readFileSync("./public/index.html", "utf8");
+      if (!fs.existsSync("data/cache/list.html") || true) {
+        renderer.renderPosts(fs);
+      }
+      index = index
+        .replace(
+          /\{\{ post-list \}\}/g,
+          fs.readFileSync("data/cache/list.html", "utf8"),
+        )
+        .replace(/\{\{ title \}\}/g, "The Disconcerted Musings of Somebody");
+      fs.writeFileSync("data/cache/index.html", index);
     } catch (err) {
       console.error(err);
       res.status(500).send("Internal server error");
       return;
     }
   }
-  index = index.replace(
-    /\{\{ post-list \}\}/g,
-    fs.readFileSync("data/cache/list.html", "utf8"),
-  );
-  res.send(index);
+  res.sendFile(__dirname + "/data/cache/index.html");
 });
 app.get("/style.css", (req, res) =>
   res.sendFile(__dirname + "/public/style.css"),
