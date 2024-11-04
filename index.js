@@ -25,9 +25,11 @@ app.use(function (req, res, next) {
 
 app.get("/", (req, res) => {
   if (!fs.existsSync("data/cache/index.html")) {
+    console.log("NO INDEX UH OH");
     try {
       var index = fs.readFileSync("./public/index.html", "utf8");
       if (!fs.existsSync("data/cache/list.html")) {
+        console.log("NO POST LIST UH OH");
         renderer.renderPosts(fs);
       }
       index = index
@@ -110,6 +112,7 @@ app.post("/update", express.json(), async (req, res) => {
     await updateUtils.git(git);
     try {
       await fs.unlinkSync("./data/cache/list.html");
+      await fs.unlinkSync("./data/cache/index.html");
     } catch (error) {
       console.error(error);
     }
