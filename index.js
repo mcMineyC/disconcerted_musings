@@ -111,8 +111,16 @@ app.post("/update", express.json(), async (req, res) => {
   try {
     await updateUtils.git(git);
     try {
-      try { await fs.unlinkSync("./data/cache/list.html") } catch (error) { console.error(error) }
-      try{ await fs.unlinkSync("./data/cache/index.html")} catch (error) {
+      try {
+        await fs.unlinkSync("./data/cache/list.html");
+      } catch (error) {
+        console.error(error);
+      }
+      try {
+        await fs.unlinkSync("./data/cache/index.html");
+      } catch (error) {
+        console.error(error);
+      }
     } catch (error) {
       console.error(error);
     }
