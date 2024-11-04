@@ -8,9 +8,10 @@ function processMarkdownToHtml(mdString) {
   mdString = mdString.replace(/\*\*([\s\S]*?)\*\*/g, "<strong>$1</strong>");
   mdString = mdString.replace(/\*([\s\S]*?)\*/g, "<em>$1</em>");
   mdString = mdString.replace(
-    /\[([^\]]+)\]\(([^\)]+)\)/g,
+    /(?<!\\)\[([^\]]+)(?<!\\)\]\(([^\)]+)\)/g,
     '<a href="$2">$1</a>',
   );
+  mdString = mdString.replace(/\\([^\w\s])/g, "$1");
   var highestLevel = 0;
   mdString = mdString.replace(
     /^( *)- (.*$)/gm,
