@@ -2,9 +2,9 @@ const express = require("express");
 const fs = require("fs");
 const app = express();
 const port = 3000;
-const { markdownUtils } = require("./markdown-utils");
-const { updateUtils } = require("./update-utils");
-const { renderer } = require("./rendering");
+const markdownUtils = require("./markdown-utils");
+const updateUtils = require("./update-utils");
+const renderer = require("./rendering");
 
 const gitDirectory = "./data/src";
 const git = require("simple-git")(gitDirectory);
@@ -24,7 +24,7 @@ app.use(function (req, res, next) {
 });
 
 app.get("/", (req, res) => {
-  if (!fs.existsSync("data/cache/index.html")){
+  if (!fs.existsSync("data/cache/index.html")) {
     try {
       var index = fs.readFileSync("./public/index.html", "utf8");
       if (!fs.existsSync("data/cache/list.html")) {
