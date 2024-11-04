@@ -27,7 +27,7 @@ app.get("/", (req, res) => {
   if (!fs.existsSync("data/cache/index.html")){
     try {
       var index = fs.readFileSync("./public/index.html", "utf8");
-      if (!fs.existsSync("data/cache/list.html") {
+      if (!fs.existsSync("data/cache/list.html")) {
         renderer.renderPosts(fs);
       }
       index = index
