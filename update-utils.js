@@ -6,6 +6,10 @@ async function updateGitRepo(git) {
     // Get the modified files from the pull result
     const summary = await git.diffSummary(["HEAD@{1}", "HEAD"]);
     const changedFiles = summary.files.map((file) => file.file);
+    console.log(
+      changedFiles.filter((file) => file.startsWith("finished/")).length,
+      "file(s) changed",
+    );
 
     return {
       success: true,

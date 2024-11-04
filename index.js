@@ -118,18 +118,16 @@ app.post("/update", express.json(), async (req, res) => {
       try {
         await fs.unlinkSync("./data/cache/list.html");
       } catch (error) {
-        if (error.toString().includes("ENONET"))
-          console.log("No post list to delete");
+        console.log("No post list to delete");
       }
       try {
         await fs.unlinkSync("./data/cache/index.html");
       } catch (error) {
-        if (error.toString().includes("ENONET"))
-          console.log("No index to delete");
+        console.log("No index to delete");
       }
       gitResponse.changedFiles.forEach((file) => {
-        if (file.startsWith("src/finished/")) {
-          const id = file.substring(13, file.length - 3);
+        if (file.startsWith("finished/")) {
+          const id = file.substring(9, file.length - 3);
           if (fs.existsSync(safePath(`./data/cache/${id}.html`))) {
             console.log(`removing cached file for ${id}`);
             fs.unlinkSync(safePath(`./data/cache/${id}.html`));
@@ -161,7 +159,7 @@ async function main() {
   }
   git = require("simple-git")(gitDirectory);
   app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`\nServer running at http://localhost:${port}`);
   });
 }
 

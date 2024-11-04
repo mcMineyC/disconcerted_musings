@@ -28,7 +28,6 @@ function renderPosts(fs) {
   });
   plist.sort((a, b) => b.modified - a.modified);
   plist = plist.map((post) => {
-    console.log(post);
     return htmlTemplate
       .replace(/\{\{ id \}\}/g, post.id)
       .replace(/\{\{ title \}\}/g, post.title)
