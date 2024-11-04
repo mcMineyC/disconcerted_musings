@@ -43,7 +43,7 @@ function renderPosts(fs) {
   plist = plist.join("\n");
   fs.writeFileSync("./data/cache/list.html", plist);
 }
-export const renderer = {
+module.exports = {
   renderPosts: renderPosts,
 };
 

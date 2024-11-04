@@ -10,6 +10,6 @@ async function updateGitRepo(git) {
   }
 }
 
-export const updateUtils = {
+module.exports = {
   git: updateGitRepo,
 };

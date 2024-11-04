@@ -78,7 +78,7 @@ async function renderMarkdownFile(inPath, outPath, title, fs) {
   return true;
 }
 
-export const markdownUtils = {
+module.exports = {
   render: renderMarkdownFile,
   process: processMarkdownToHtml,
   renderString: renderMarkdown,
