@@ -7,7 +7,7 @@ const updateUtils = require("./update-utils");
 const renderer = require("./rendering");
 
 const gitDirectory = "./data/src";
-const git = require("simple-git")(gitDirectory);
+var git = undefined;
 
 const secretToken = process.env.SECRET_TOKEN;
 const superSecretToken = process.env.SUPER_SECRET_TOKEN;
@@ -109,25 +109,40 @@ app.post("/update", express.json(), async (req, res) => {
     return;
   }
   try {
-    await updateUtils.git(git);
+    var gitResponse = await updateUtils.git(git);
+    if (!gitResponse.success)
+      res
+        .status(500)
+        .send({ status: "error", message: "Failed to update git" });
     try {
       try {
         await fs.unlinkSync("./data/cache/list.html");
       } catch (error) {
-        console.error(error);
+        if (error.toString().includes("ENONET"))
+          console.log("No post list to delete");
       }
       try {
         await fs.unlinkSync("./data/cache/index.html");
       } catch (error) {
-        console.error(error);
+        if (error.toString().includes("ENONET"))
+          console.log("No index to delete");
       }
+      gitResponse.changedFiles.forEach((file) => {
+        if (file.startsWith("src/finished/")) {
+          const id = file.substring(13, file.length - 3);
+          if (fs.existsSync(safePath(`./data/cache/${id}.html`))) {
+            console.log(`removing cached file for ${id}`);
+            fs.unlinkSync(safePath(`./data/cache/${id}.html`));
+          }
+        }
+      });
     } catch (error) {
       console.error(error);
     }
     res.status(200).send({ status: "success" });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ status: "error" });
+    res.status(500).send({ status: "error", error: error });
   }
 });
 
@@ -135,15 +150,16 @@ async function main() {
   console.log("Starting server...");
   console.log("\tSecret token is: ", secretToken);
   console.log("\tSuper secret token is: ", superSecretToken);
-  if (!fs.existsSync("./data")) {
-    await fs.mkdir("./data");
-    if (!fs.existsSync("./data/src")) {
-      await fs.mkdir("./data/src");
+  if (!fs.existsSync("data")) {
+    await fs.mkdir("data");
+    if (!fs.existsSync("data/src")) {
+      await fs.mkdir("data/src");
     }
-    if (!fs.existsSync("./data/cache")) {
-      await fs.mkdir("./data/cache");
+    if (!fs.existsSync("data/cache")) {
+      await fs.mkdir("data/cache");
     }
   }
+  git = require("simple-git")(gitDirectory);
   app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
   });
