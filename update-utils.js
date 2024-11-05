@@ -1,6 +1,6 @@
-async function updateGitRepo(git) {
+async function updateGitRepo(git, branch = "blog") {
   try {
-    const pull = await git.pull("origin", "blog");
+    const pull = await git.pull("origin", branch);
     console.log("Git repo successfully updated");
 
     // Get the modified files from the pull result

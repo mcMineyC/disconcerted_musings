@@ -77,12 +77,6 @@ app.get("/post/:id", async (req, res) => {
 });
 
 app.get("/wip/:id", async (req, res) => {
-  let requestToken = req.query.token;
-
-  if (!secretToken || secretToken !== requestToken) {
-    res.status(401).send({ status: "unauthorized" });
-    return;
-  }
   const id = req.params.id;
   if (!fs.existsSync(safePath(`./data/src/wip/${id}.md`))) {
     res.status(404).send("Not found");
@@ -91,6 +85,31 @@ app.get("/wip/:id", async (req, res) => {
   try {
     const htmlContent = await markdownUtils.renderString(
       fs.readFileSync(safePath(`./data/src/wip/${id}.md`), "utf-8"),
+      id.substring(0, 1).toUpperCase() + id.substring(1),
+      mdTemplate,
+    );
+    res.send(htmlContent);
+  } catch (error) {
+    res.status(500).send("Internal server error\n<br>" + error);
+    return;
+  }
+});
+
+app.get("/unlisted/:id", async (req, res) => {
+  let requestToken = req.query.token;
+
+  if (!secretToken || secretToken !== requestToken) {
+    res.status(401).send({ status: "unauthorized" });
+    return;
+  }
+  const id = req.params.id;
+  if (!fs.existsSync(safePath(`./data/src/unlisted/${id}.md`))) {
+    res.status(404).send("Not found");
+    return;
+  }
+  try {
+    const htmlContent = await markdownUtils.renderString(
+      fs.readFileSync(safePath(`./data/src/unlisted/${id}.md`), "utf-8"),
       id.substring(0, 1).toUpperCase() + id.substring(1),
       mdTemplate,
     );
