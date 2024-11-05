@@ -7,11 +7,18 @@ function processMarkdownToHtml(mdString) {
   mdString = mdString.replace(/^###### (.*$)/gm, "<h6>$1</h6>");
   mdString = mdString.replace(/\*\*([\s\S]*?)\*\*/g, "<strong>$1</strong>");
   mdString = mdString.replace(/\*([\s\S]*?)\*/g, "<em>$1</em>");
+
+  mdString = mdString.replace(/\\(\[|\])/g, "{{ESCAPED_BRACKET_$1}}");
+
+  // Then process the regular markdown links
   mdString = mdString.replace(
-    /(?<!\\)\[([^\]]+)(?<!\\)\]\(([^\)]+)\)/g,
+    /\[([^\]]+)\]\(([^\)]+)\)/g,
     '<a href="$2">$1</a>',
   );
-  mdString = mdString.replace(/\\([^\w\s])/g, "$1");
+
+  // Finally, restore the escaped brackets by removing the backslash
+  mdString = mdString.replace(/{{ESCAPED_BRACKET_(\[|\])}}/g, "$1");
+
   var highestLevel = 0;
   mdString = mdString.replace(
     /^( *)- (.*$)/gm,
