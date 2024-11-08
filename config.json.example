@@ -1,0 +1,43 @@
+{
+  "super_secret_token": "mySecretToken123",
+  "git": [
+    {
+      "branch": "master",
+      "directory": "data/src"
+    },
+    {
+      "branch": "secondary",
+      "directory": "data/secondary"
+    }
+  ],
+  "dirs": [
+    {
+      "path": "data/src/public",
+      "name": "public",
+      "public": true,
+      "token": "undefined",
+      "cache": true
+    },
+    {
+      "path": "data/src/unlisted",
+      "name": "wip",
+      "public": false,
+      "token": "undefined",
+      "cache": true
+    },
+    {
+      "path": "data/src/private",
+      "name": "private",
+      "public": false,
+      "token": "redacted",
+      "cache": true
+    },
+    {
+      "path": "data/secondary/finished",
+      "name": "other",
+      "public": false,
+      "token": "undefined",
+      "cache": false
+    }
+  ]
+}

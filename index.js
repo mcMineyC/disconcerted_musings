@@ -1,16 +1,16 @@
-const express = require("express");
 const fs = require("fs");
+var config = require("./config.json");
+const express = require("express");
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || config.port || 3000;
 const markdownUtils = require("./markdown-utils");
 const updateUtils = require("./update-utils");
 const renderer = require("./rendering");
 
-const gitDirectory = "./data/src";
-var git = undefined;
+var git = [];
 
-const secretToken = process.env.SECRET_TOKEN;
-const superSecretToken = process.env.SUPER_SECRET_TOKEN;
+const superSecretToken =
+  process.env.SUPER_SECRET_TOKEN || config.superSecretToken;
 const mdTemplate = fs.readFileSync("./template.html", "utf8");
 const path = require("path");
 
@@ -51,16 +51,27 @@ app.get("/style.css", (req, res) =>
   res.sendFile(__dirname + "/public/style.css"),
 );
 
-app.get("/post/:id", async (req, res) => {
+app.get("/:name/:id", async (req, res) => {
+  var target = config.dirs.filter((d) => d.name == req.params.name);
+  if (target.length == 0) {
+    res.status(404).send("Not found");
+    return;
+  }
+  target = target[0];
+  if (target.token != "undefined" && req.query.token != target.token) {
+    res.status(401).send("Unauthorized");
+    return;
+  }
   const id = req.params.id;
-  if (!fs.existsSync(safePath(`./data/cache/${id}.html`))) {
-    if (!fs.existsSync(safePath(`./data/src/finished/${id}.md`))) {
-      res.status(404).send("Not found");
-      return;
-    }
+  var outPath = safePath(`./data/cache/${target.name}/${id}.html`);
+  if (!fs.existsSync(safePath(`./${target.path}/${id}.md`))) {
+    res.status(404).send("Not found");
+    return;
+  }
+  if (!fs.existsSync(outPath) && target.cache) {
     const success = await markdownUtils.render(
-      safePath(`./data/src/finished/${id}.md`),
-      safePath(`./data/cache/${id}.html`),
+      safePath(`${target.path}/${id}.md`),
+      outPath,
       id.substring(0, 1).toUpperCase() + id.substring(1),
       fs,
     );
@@ -68,67 +79,36 @@ app.get("/post/:id", async (req, res) => {
       res.status(500).send("Internal server error");
       return;
     }
-  }
-  const htmlContent = fs.readFileSync(
-    safePath(`./data/cache/${req.params.id}.html`),
-    "utf8",
-  );
-  res.send(htmlContent);
-});
-
-app.get("/wip/:id", async (req, res) => {
-  const id = req.params.id;
-  if (!fs.existsSync(safePath(`./data/src/wip/${id}.md`))) {
-    res.status(404).send("Not found");
-    return;
-  }
-  try {
-    const htmlContent = await markdownUtils.renderString(
-      fs.readFileSync(safePath(`./data/src/wip/${id}.md`), "utf-8"),
+    res.sendFile(outPath);
+  } else if (!target.cache) {
+    var mdString = await markdownUtils.renderString(
+      fs.readFileSync(safePath(`${target.path}/${id}.md`), "utf8"),
       id.substring(0, 1).toUpperCase() + id.substring(1),
       mdTemplate,
     );
-    res.send(htmlContent);
-  } catch (error) {
-    res.status(500).send("Internal server error\n<br>" + error);
-    return;
-  }
-});
-
-app.get("/unlisted/:id", async (req, res) => {
-  let requestToken = req.query.token;
-
-  if (!secretToken || secretToken !== requestToken) {
-    res.status(401).send({ status: "unauthorized" });
-    return;
-  }
-  const id = req.params.id;
-  if (!fs.existsSync(safePath(`./data/src/unlisted/${id}.md`))) {
-    res.status(404).send("Not found");
-    return;
-  }
-  try {
-    const htmlContent = await markdownUtils.renderString(
-      fs.readFileSync(safePath(`./data/src/unlisted/${id}.md`), "utf-8"),
-      id.substring(0, 1).toUpperCase() + id.substring(1),
-      mdTemplate,
-    );
-    res.send(htmlContent);
-  } catch (error) {
-    res.status(500).send("Internal server error\n<br>" + error);
-    return;
+    res.send(mdString);
   }
 });
 
 app.post("/update", express.json(), async (req, res) => {
   const requestToken = req.body.token;
-
   if (!superSecretToken || superSecretToken !== requestToken) {
     res.status(401).send({ status: "unauthorized" });
     return;
   }
+  const target = git.filter((g) => g.name == req.body.name)[0];
+  if (!target) {
+    res.status(404).send({ status: "error", message: "Repository not found" });
+    return;
+  }
+
   try {
-    var gitResponse = await updateUtils.git(git);
+    var gitResponse = await updateUtils.git(
+      target.sgi,
+      target.branch,
+      target.path,
+      fs,
+    );
     if (!gitResponse.success)
       res
         .status(500)
@@ -165,18 +145,27 @@ app.post("/update", express.json(), async (req, res) => {
 
 async function main() {
   console.log("Starting server...");
-  console.log("\tSecret token is: ", secretToken);
+  // console.log("\tSecret token is: ", secretToken);
   console.log("\tSuper secret token is: ", superSecretToken);
   if (!fs.existsSync("data")) {
-    await fs.mkdir("data");
-    if (!fs.existsSync("data/src")) {
-      await fs.mkdir("data/src");
-    }
-    if (!fs.existsSync("data/cache")) {
-      await fs.mkdir("data/cache");
-    }
+    await fs.mkdirSync("data");
   }
-  git = require("simple-git")(gitDirectory);
+  if (!fs.existsSync("data/cache")) {
+    fs.mkdirSync("data/cache");
+  }
+  config.git.forEach((repo) => {
+    git.push({
+      name: repo.name,
+      branch: repo.branch,
+      path: repo.directory,
+      sgi: require("simple-git")(repo.directory),
+    });
+  });
+  config.dirs.forEach((dir) => {
+    if (!fs.existsSync(`data/cache/${dir.name}`) && dir.cache) {
+      return fs.mkdirSync(`data/cache/${dir.name}`);
+    }
+  });
   app.listen(port, () => {
     console.log(`\nServer running at http://localhost:${port}`);
   });

@@ -2,3 +2,4 @@ data/
 data/cache
 data/src
 node_modules/
+config.json
