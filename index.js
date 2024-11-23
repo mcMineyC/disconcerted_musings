@@ -183,12 +183,15 @@ app.post("/update", express.json(), async (req, res) => {
 
 async function main() {
   console.log("Starting server...");
-  // console.log("\tSecret token is: ", secretToken);
   console.log("\tSuper secret token is: ", superSecretToken);
   if (!fs.existsSync("data")) {
+    console.log("\tCreating data directory");
     await fs.mkdirSync("data");
+    console.log("Make sure your repos are setup before you run this again");
+    return;
   }
   if (!fs.existsSync("data/cache")) {
+    console.log("\tCreating cache directory");
     fs.mkdirSync("data/cache");
   }
   config.git.forEach((repo) => {
@@ -200,8 +203,12 @@ async function main() {
     });
   });
   config.dirs.forEach((dir) => {
-    if (!fs.existsSync(`data/cache/${dir.name}`) && dir.cache) {
-      return fs.mkdirSync(`data/cache/${dir.name}`);
+    if (
+      !fs.existsSync(`data/cache/${dir.name}`) &&
+      (dir.cache == true || dir.indexed == true)
+    ) {
+      fs.mkdirSync(`data/cache/${dir.name}`);
+      console.log("\tCreated cache dir for", dir.name);
     }
   });
   app.listen(port, () => {
