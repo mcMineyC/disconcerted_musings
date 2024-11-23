@@ -1,5 +1,8 @@
 {
+  "port": 3000,
   "super_secret_token": "mySecretToken123",
+  "mainIndex": "public",
+  "defaultTitle": "My Awesome Blog",
   "git": [
     {
       "branch": "master",
@@ -14,6 +17,7 @@
     {
       "path": "data/src/public",
       "name": "public",
+      "indexed": true,
       "public": true,
       "token": "undefined",
       "cache": true
@@ -21,6 +25,7 @@
     {
       "path": "data/src/unlisted",
       "name": "wip",
+      "indexed": true,
       "public": false,
       "token": "undefined",
       "cache": true
@@ -28,6 +33,7 @@
     {
       "path": "data/src/private",
       "name": "private",
+      "indexed": false,
       "public": false,
       "token": "redacted",
       "cache": true
@@ -35,9 +41,11 @@
     {
       "path": "data/secondary/finished",
       "name": "other",
+      "indexed": true,
       "public": false,
       "token": "undefined",
-      "cache": false
+      "cache": false,
+      "title": "Other Stuff"
     }
   ]
 }
