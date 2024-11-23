@@ -60,7 +60,7 @@ function generateIndentCSS(levels) {
   return css;
 }
 
-function renderMarkdown(mdContent, title, mdTemplate) {
+function renderMarkdown(mdContent, title, backLocation, mdTemplate) {
   const htmlObject = processMarkdownToHtml(mdContent);
   let prettyTitle = "The Disconcerted Musings of Somebody | " + title;
   if (title.match(/^(\d{1,2})-(\d{1,2})-(\d{2}|\d{4})$/)) {
@@ -70,14 +70,20 @@ function renderMarkdown(mdContent, title, mdTemplate) {
     .replace(/\{\{ title \}\}/g, title)
     .replace(/\{\{ title-pretty \}\}/g, prettyTitle)
     .replace(/\{\{ content \}\}/g, htmlObject.content)
+    .replace(/\{\{ back-location \}\}/g, backLocation)
     .replace(/\{\{ list-level-css \}\}/g, htmlObject.listStyling);
 }
 
-async function renderMarkdownFile(inPath, outPath, title, fs) {
+async function renderMarkdownFile(inPath, outPath, title, subdirName, fs) {
   try {
     const mdContent = fs.readFileSync(inPath, "utf8");
     const mdTemplate = fs.readFileSync("./template.html", "utf8");
-    const renderedMd = renderMarkdown(mdContent, title, mdTemplate);
+    const renderedMd = renderMarkdown(
+      mdContent,
+      title,
+      "/" + subdirName,
+      mdTemplate,
+    );
     fs.writeFileSync(outPath, renderedMd);
   } catch (err) {
     console.error(err);

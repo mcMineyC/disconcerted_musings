@@ -84,6 +84,7 @@ app.get("/:name/:id", async (req, res) => {
       safePath(`${target.path}/${id}.md`),
       outPath,
       id.substring(0, 1).toUpperCase() + id.substring(1),
+      target.name,
       fs,
     );
     if (!success) {
@@ -98,6 +99,8 @@ app.get("/:name/:id", async (req, res) => {
       mdTemplate,
     );
     res.send(mdString);
+  } else {
+    res.sendFile(outPath);
   }
 });
 
