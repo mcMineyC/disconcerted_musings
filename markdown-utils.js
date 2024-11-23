@@ -23,12 +23,12 @@ function processMarkdownToHtml(mdString) {
 
   var highestLevel = 0;
   mdString = mdString.replace(
-    /^( *)- (.*$)/gm,
+    /^(\s*)- (.*$)/gm,
     function (match, indent, content) {
       const spaces = indent.length;
       const level = Math.floor(spaces / 2);
       if (level > highestLevel) highestLevel = level;
-      return `<li class="indent-level-${level}" style="--list-level: ${level}">${content}</li>`;
+      return `<li class="indent-level-${level}">${content}</li>`;
     },
   );
 
