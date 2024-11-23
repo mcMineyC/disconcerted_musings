@@ -96,7 +96,7 @@ app.get("/:name/:id", async (req, res) => {
     var mdString = await markdownUtils.renderString(
       fs.readFileSync(safePath(`${target.path}/${id}.md`), "utf8"),
       id.substring(0, 1).toUpperCase() + id.substring(1),
-      "/"+target.name
+      "/" + target.name,
       mdTemplate,
     );
     res.send(mdString);
