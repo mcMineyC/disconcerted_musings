@@ -57,8 +57,10 @@ function renderIndex(name, config, templatePath, fs) {
   const dirname = dirr.name;
   if (dirr.name == "nullisfalseandyoucanttellmeotherwise12345!") {
     console.log("NO DIR FOUND");
-    throw "Error: No dir found";
-    return;
+    throw "dirNotFoundError";
+  }
+  if (!dirr.indexed) {
+    throw "dirNotSupposedToBeIndexedError";
   }
   var index = fs.readFileSync(templatePath, "utf8");
   if (!fs.existsSync(`data/cache/${name}/list.html`)) {
@@ -70,7 +72,7 @@ function renderIndex(name, config, templatePath, fs) {
       /\{\{ post-list \}\}/g,
       fs.readFileSync(`data/cache/${name}/list.html`, "utf8"),
     )
-    .replace(/\{\{ title \}\}/g, "The Disconcerted Musings of Somebody");
+    .replace(/\{\{ title \}\}/g, dirr.title || config.defaultTitle);
   fs.writeFileSync(`data/cache/${name}/index.html`, index);
 }
 

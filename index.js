@@ -37,7 +37,26 @@ app.get("/:name", (req, res) => {
   var name = req.params.name;
   if (!fs.existsSync(`data/cache/${name}/index.html`) || true) {
     console.log("NO INDEX FOR", name, "UH OH");
-    renderer.renderIndex(name, config, "./public/index.html", fs);
+    try {
+      renderer.renderIndex(name, config, "./public/index.html", fs);
+    } catch (e) {
+      if (e == "dirNotFoundError") {
+        res.status(404).send("<center><h1>Not found</h1></center>");
+        return;
+      } else if (e == "dirNotSupposedToBeIndexedError") {
+        res
+          .status(401)
+          .send(
+            "<center><h1>Indexing not turned on for this endpoint</h1></center>",
+          );
+        return;
+      }
+      res
+        .status(500)
+        .send(
+          "<center><h1>Internal server error</h1><p>" + e + "</p></center>",
+        );
+    }
   }
   console.log("Sending index for", name, "to client");
   res.sendFile(__dirname + `/data/cache/${name}/index.html`);
@@ -92,7 +111,7 @@ app.post("/update", express.json(), async (req, res) => {
   if (!req.body.name || target == undefined) {
     res.status(500).send({
       status: "error",
-      message: "No repository name not provided or incorrect",
+      message: "Repository name not provided or incorrect",
     });
     return;
   }
@@ -110,29 +129,41 @@ app.post("/update", express.json(), async (req, res) => {
       target.path,
       fs,
     );
-    if (!gitResponse.success)
+    if (gitResponse.success == false && gitResponse.needsRunAgain == true) {
+      console.log("Rerunning");
+      gitResponse = await updateUtils.git(
+        target.sgi,
+        target.branch,
+        target.path,
+        fs,
+      );
+    }
+    if (!gitResponse.success) {
       res
         .status(500)
         .send({ status: "error", message: "Failed to update git" });
+      return;
+    }
     try {
-      try {
-        await fs.unlinkSync("./data/cache/list.html");
-      } catch (error) {
-        console.log("No post list to delete");
-      }
-      try {
-        await fs.unlinkSync("./data/cache/index.html");
-      } catch (error) {
-        console.log("No index to delete");
-      }
       if (dirTargets != null) {
         gitResponse.changedFiles.forEach((file) => {
           const id = file.split("/").pop().split(".")[0];
-          console.log(`checking for cached file for ${id}`);
+          if (!file.startsWith())
+            console.log(`checking for cached file for ${id}`);
           dirTargets.forEach((dt) => {
             if (fs.existsSync(safePath(`./data/cache/${dt.name}/${id}.html`))) {
               console.log(`removing cached file for ${id} from ${dt.name}`);
               fs.unlinkSync(safePath(`./data/cache/${dt.name}/${id}.html`));
+            }
+            try {
+              fs.unlinkSync(`./data/cache/${dt.name}/list.html`);
+            } catch (error) {
+              console.log("No post list to delete");
+            }
+            try {
+              fs.unlinkSync(`./data/cache/${dt.name}/index.html`);
+            } catch (error) {
+              console.log("No index to delete");
             }
           });
         });
