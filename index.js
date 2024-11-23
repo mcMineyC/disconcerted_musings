@@ -24,32 +24,24 @@ app.use(function (req, res, next) {
 });
 
 app.get("/", (req, res) => {
-  if (!fs.existsSync("data/cache/index.html")) {
+  if (!fs.existsSync("data/cache/post/index.html") || true) {
     console.log("NO INDEX UH OH");
-    try {
-      var index = fs.readFileSync("./public/index.html", "utf8");
-      if (!fs.existsSync("data/cache/list.html")) {
-        console.log("NO POST LIST UH OH");
-        renderer.renderPosts(fs);
-      }
-      index = index
-        .replace(
-          /\{\{ post-list \}\}/g,
-          fs.readFileSync("data/cache/list.html", "utf8"),
-        )
-        .replace(/\{\{ title \}\}/g, "The Disconcerted Musings of Somebody");
-      fs.writeFileSync("data/cache/index.html", index);
-    } catch (err) {
-      console.error(err);
-      res.status(500).send("Internal server error");
-      return;
-    }
+    renderer.renderIndex("post", config, "./public/index.html", fs);
   }
-  res.sendFile(__dirname + "/data/cache/index.html");
+  res.sendFile(__dirname + "/data/cache/post/index.html");
 });
 app.get("/style.css", (req, res) =>
   res.sendFile(__dirname + "/public/style.css"),
 );
+app.get("/:name", (req, res) => {
+  var name = req.params.name;
+  if (!fs.existsSync(`data/cache/${name}/index.html`) || true) {
+    console.log("NO INDEX FOR", name, "UH OH");
+    renderer.renderIndex(name, config, "./public/index.html", fs);
+  }
+  console.log("Sending index for", name, "to client");
+  res.sendFile(__dirname + `/data/cache/${name}/index.html`);
+});
 
 app.get("/:name/:id", async (req, res) => {
   var target = config.dirs.filter((d) => d.name == req.params.name);
@@ -97,6 +89,15 @@ app.post("/update", express.json(), async (req, res) => {
     return;
   }
   const target = git.filter((g) => g.name == req.body.name)[0];
+  if (!req.body.name || target == undefined) {
+    res.status(500).send({
+      status: "error",
+      message: "No repository name not provided or incorrect",
+    });
+    return;
+  }
+  const dirTargets = config.dirs.filter((d) => d.path.includes(target.path));
+  if (dirTargets.length == 0) dirTargets = null;
   if (!target) {
     res.status(404).send({ status: "error", message: "Repository not found" });
     return;
@@ -124,15 +125,18 @@ app.post("/update", express.json(), async (req, res) => {
       } catch (error) {
         console.log("No index to delete");
       }
-      gitResponse.changedFiles.forEach((file) => {
-        if (file.startsWith("finished/")) {
-          const id = file.substring(9, file.length - 3);
-          if (fs.existsSync(safePath(`./data/cache/${id}.html`))) {
-            console.log(`removing cached file for ${id}`);
-            fs.unlinkSync(safePath(`./data/cache/${id}.html`));
-          }
-        }
-      });
+      if (dirTargets != null) {
+        gitResponse.changedFiles.forEach((file) => {
+          const id = file.split("/").pop().split(".")[0];
+          console.log(`checking for cached file for ${id}`);
+          dirTargets.forEach((dt) => {
+            if (fs.existsSync(safePath(`./data/cache/${dt.name}/${id}.html`))) {
+              console.log(`removing cached file for ${id} from ${dt.name}`);
+              fs.unlinkSync(safePath(`./data/cache/${dt.name}/${id}.html`));
+            }
+          });
+        });
+      }
     } catch (error) {
       console.error(error);
     }

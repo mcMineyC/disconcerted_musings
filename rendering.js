@@ -1,9 +1,9 @@
-function renderPosts(fs) {
+function renderList(dirname, path, fs) {
   console.log("Posts updating");
-  const posts = fs.readdirSync("./data/src/finished");
+  const posts = fs.readdirSync(path);
   var htmlTemplate = `
     <div class="post-block">
-      <a href="/post/{{ id }}" style="display: flex; justify-content: space-between; align-items: center;">
+      <a href="/{{ name }}/{{ id }}" style="display: flex; justify-content: space-between; align-items: center;">
         <h2>{{ title }}</h2>
         <p>{{ modified }}</p>
       </a>
@@ -12,7 +12,7 @@ function renderPosts(fs) {
   var plist = [];
   posts.forEach((post) => {
     var id = post.split(".")[0];
-    var created = fs.statSync(`./data/src/finished/${post}`).mtime;
+    var created = fs.statSync(`${path}/${post}`).mtime;
     let prettyTitle = id.substring(0, 1).toUpperCase() + id.substring(1);
     if (id.match(/^(\d{1,2})-(\d{1,2})-(\d{2}|\d{4})$/)) {
       prettyTitle = "Somebody's Daily Note: " + prettyTitle;
@@ -39,13 +39,44 @@ function renderPosts(fs) {
           post.modified.getDate() +
           "-" +
           post.modified.getFullYear(),
-      );
+      )
+      .replace(/\{\{ name \}\}/g, dirname);
   });
   plist = plist.join("\n");
-  fs.writeFileSync("./data/cache/list.html", plist);
+  fs.writeFileSync(`./data/cache/${dirname}/list.html`, plist);
 }
+
+function renderIndex(name, config, templatePath, fs) {
+  var dirr = { name: "nullisfalseandyoucanttellmeotherwise12345!" };
+  for (var x = 0; x < config.dirs.length; x++) {
+    if (config.dirs[x].name == name) {
+      console.log("Found dir");
+      dirr = config.dirs[x];
+    }
+  }
+  const dirname = dirr.name;
+  if (dirr.name == "nullisfalseandyoucanttellmeotherwise12345!") {
+    console.log("NO DIR FOUND");
+    throw "Error: No dir found";
+    return;
+  }
+  var index = fs.readFileSync(templatePath, "utf8");
+  if (!fs.existsSync(`data/cache/${name}/list.html`)) {
+    console.log("NO POST LIST UH OH");
+    renderList(dirname, dirr.path, fs);
+  }
+  index = index
+    .replace(
+      /\{\{ post-list \}\}/g,
+      fs.readFileSync(`data/cache/${name}/list.html`, "utf8"),
+    )
+    .replace(/\{\{ title \}\}/g, "The Disconcerted Musings of Somebody");
+  fs.writeFileSync(`data/cache/${name}/index.html`, index);
+}
+
 module.exports = {
-  renderPosts: renderPosts,
+  renderIndex: renderIndex,
+  renderList: renderList,
 };
 
 /*
