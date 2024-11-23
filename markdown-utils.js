@@ -9,7 +9,8 @@ function processMarkdownToHtml(mdString) {
   mdString = mdString.replace(/^###### (.*$)/gm, "<h6>$1</h6>");
   mdString = mdString.replace(/\*\*([\s\S]*?)\*\*/g, "<strong>$1</strong>");
   mdString = mdString.replace(/(?<!\\)\*([\s\S]*?)(?<!\\)\*/g, "<em>$1</em>");
-  mdString = mdString.replace(/\\\*/g, "*");
+  mdString = mdString.replace(/\\(\S)/gm, "$1");
+  // mdString = mdString.replace(/\\\*/g, "*");
 
   // Then process the regular markdown links
   mdString = mdString.replace(
@@ -41,7 +42,7 @@ function processMarkdownToHtml(mdString) {
   const wrappedLines = lines.map((line) => {
     if (line.trim() === "") return '<p class="empty-line">&#10240;&#x2800;</p>';
     if (line.match(/^<(h[1-6]|li|blockquote|ul|ol)/)) return line;
-    const match = line.match(/^(\W*)/)[0].replace(/\t/g, "  ");
+    const match = line.match(/^(\s*)/)[0].replace(/\t/g, "  ");
     const spaces = match.length;
     const level = Math.floor(spaces / 2);
     if (level > highestLevel) highestLevel = level;
