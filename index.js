@@ -105,7 +105,7 @@ app.get("/:name/:id(*)", async (req, res) => {
   const id = req.params.id;
   if (target.raw && target.raw == true) {
     // console.log("Target is raw files");
-    // const filePath = safePath(`./${target.path}/${id}`);
+    const filePath = safePath(`./${target.path}/${id}`);
     // console.log("Trying", filePath);
     if (!fs.existsSync(filePath)) {
       res.status(404).send(fancyError("Not found"));
