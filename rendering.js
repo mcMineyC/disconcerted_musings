@@ -77,20 +77,68 @@ function renderIndex(name, config, templatePath, fs) {
   fs.writeFileSync(`data/cache/${name}/index.html`, index);
 }
 
-function renderFileIndexString(dirPath, templatePath, fs) {
+function renderFileIndexString(
+  dirPath,
+  dirname,
+  title,
+  currentPath,
+  templatePath,
+  fs,
+) {
   var index = fs.readFileSync(templatePath, "utf8");
+  const posts = fs.readdirSync(dirPath);
+  var plist = [];
+  var htmlTemplate = postHtmlTemplate.replace(
+    /\/\{\{ name \}\}\/\{\{ id \}\}/g,
+    "/{{ id }}",
+  );
+
+  // Add parent directory entry
+  if (currentPath.split("/").slice(1).pop() != dirname)
+    plist.push({
+      id: currentPath.split("/").slice(1, -1).join("/"),
+      title: "..",
+      modified: new Date(),
+    });
+
+  posts.forEach((file) => {
+    var created = fs.statSync(`${dirPath}/${file}`).mtime;
+    var modifiedDate = new Date(
+      created.getTime() - created.getTimezoneOffset() * 60000,
+    );
+    plist.push({
+      id: currentPath.substring(1) + "/" + file,
+      title: file,
+      modified: modifiedDate,
+    });
+  });
+  plist.sort((a, b) => b.modified - a.modified);
+  plist = plist.map((post) => {
+    return htmlTemplate
+      .replace(/\{\{ id \}\}/g, post.id)
+      .replace(/\{\{ title \}\}/g, post.title)
+      .replace(
+        /\{\{ modified \}\}/g,
+        post.modified.getMonth() +
+          1 +
+          "-" +
+          post.modified.getDate() +
+          "-" +
+          post.modified.getFullYear(),
+      )
+      .replace(/\{\{ name \}\}/g, dirname);
+  });
+  plist = plist.join("\n");
   index = index
-    .replace(
-      /\{\{ post-list \}\}/g,
-      fs.readFileSync(`data/cache/${name}/list.html`, "utf8"),
-    )
-    .replace(/\{\{ title \}\}/g, dirr.title || config.defaultTitle);
-  fs.writeFileSync(`data/cache/${name}/index.html`, index);
+    .replace(/\{\{ post-list \}\}/g, plist)
+    .replace(/\{\{ title \}\}/g, title);
+  return index;
 }
 
 module.exports = {
   renderIndex: renderIndex,
   renderList: renderList,
+  renderFileIndexString: renderFileIndexString,
 };
 
 /*

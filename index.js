@@ -35,20 +35,50 @@ app.get("/style.css", (req, res) => {
 });
 app.get("/:name", (req, res) => {
   var name = req.params.name;
+  var target = lookupByName(name);
+  if (!target) {
+    res.status(404).send(fancyError("Not found"));
+    return;
+  }
+  if (target.raw && target.raw == true) {
+    if (!target.indexed) {
+      res
+        .status(401)
+        .send(fancyError("Indexing not turned on for this endpoint"));
+      return;
+    }
+    // res.status(401).send("Unauthorized");
+    res.send(
+      renderer.renderFileIndexString(
+        safePath(target.path),
+        name,
+        target.title || config.defaultTitle,
+        "/" + target.name,
+        "./public/index.html",
+        fs,
+      ),
+    );
+    return;
+  }
   if (!fs.existsSync(`data/cache/${name}/index.html`)) {
     // console.log("NO INDEX FOR", name, "UH OH");
     try {
       renderer.renderIndex(name, config, "./public/index.html", fs);
     } catch (e) {
       if (e == "dirNotFoundError") {
-        res.status(404).send("<center><h1>Not found</h1></center>");
+        res.status(404).send(fancyError("Not found"));
+        console.log("You screwed something up in the config.");
+        console.log(
+          "Some help:\n\tDirname:",
+          name,
+          "\n\tRelevant entry:",
+          target,
+        );
         return;
       } else if (e == "dirNotSupposedToBeIndexedError") {
         res
           .status(401)
-          .send(
-            "<center><h1>Indexing not turned on for this endpoint</h1></center>",
-          );
+          .send(fancyError("Indexing not turned on for this endpoint"));
         return;
       }
       res
@@ -63,33 +93,48 @@ app.get("/:name", (req, res) => {
 });
 
 app.get("/:name/:id(*)", async (req, res) => {
-  var target = config.dirs.filter((d) => d.name == req.params.name);
-  if (target.length == 0) {
-    res.status(404).send("Not found");
+  var target = lookupByName(req.params.name);
+  if (!target) {
+    res.status(404).send(fancyError("Not found"));
     return;
   }
-  target = target[0];
   if (target.token != "undefined" && req.query.token != target.token) {
-    res.status(401).send("Unauthorized");
+    res.status(401).send(fancyError("Unauthorized"));
     return;
   }
   const id = req.params.id;
   if (target.raw && target.raw == true) {
-    console.log("Target is raw files");
-    const filePath = safePath(`./${target.path}/${id}`);
-    console.log("Trying", filePath);
+    // console.log("Target is raw files");
+    // const filePath = safePath(`./${target.path}/${id}`);
+    // console.log("Trying", filePath);
     if (!fs.existsSync(filePath)) {
-      res.status(404).send("Not Found");
+      res.status(404).send(fancyError("Not found"));
       return;
     }
-
     const stats = fs.statSync(filePath);
-    if (stats.isDirectory()) {
-      res.status(500).send("Internal Server Error");
-      // renderer.renderIndex(id, config, "./public/index.html", fs);
-      // res.sendFile(safePath(`./${target.path}/${id}/index.html`));
+    if (stats.isDirectory() && target.indexed) {
+      res.send(
+        renderer.renderFileIndexString(
+          safePath(filePath),
+          target.name,
+          target.title || config.defaultTitle,
+          req.path,
+          "./public/index.html",
+          fs,
+        ),
+      );
+    } else if (stats.isDirectory() && !target.indexed) {
+      res.status(401).send(fancyError("Unauthorized"));
     } else {
-      res.sendFile(filePath);
+      try {
+        res.sendFile(filePath);
+      } catch (e) {
+        if (e.toString().includes("NotFoundError")) {
+          res.status(404).send(fancyError("Not found"));
+        } else {
+          res.status(500).send(fancyError("Internal server error"));
+        }
+      }
     }
   } else {
     var outPath = safePath(`./data/cache/${target.name}/${id}.html`);
@@ -139,8 +184,8 @@ app.post("/update", express.json(), async (req, res) => {
     });
     return;
   }
-  const dirTargets = config.dirs.filter((d) => d.path.includes(target.path));
-  if (dirTargets.length == 0) dirTargets = null;
+  var dirTargets = config.dirs.filter((d) => !d.raw || d.raw == false);
+  if (!dirTargets.length == 0) dirTargets = null;
   if (!target) {
     res.status(404).send({ status: "error", message: "Repository not found" });
     return;
@@ -249,4 +294,14 @@ function safePath(userInput) {
   } else {
     throw new Error("Path traversal attempt detected!");
   }
+}
+
+function lookupByName(name) {
+  return config.dirs.filter((d) => d.name == name)[0];
+}
+function lookupByPath(path) {
+  return config.dirs.filter((d) => d.path.includes(path.toString()))[0];
+}
+function fancyError(text) {
+  return `<center><h1>${text}</h1></center>`;
 }
