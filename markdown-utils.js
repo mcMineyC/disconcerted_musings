@@ -14,6 +14,10 @@ function processMarkdownToHtml(mdString) {
 
   // Then process the regular markdown links
   mdString = mdString.replace(
+    /\!\[([^\]]+)\]\(([^\)]+)\)/g,
+    '<img src="$2">',
+  );
+  mdString = mdString.replace(
     /\[([^\]]+)\]\(([^\)]+)\)/g,
     '<a href="$2">$1</a>',
   );
