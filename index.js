@@ -24,19 +24,19 @@ app.use(function (req, res, next) {
 });
 
 app.get("/", (req, res) => {
-  if (!fs.existsSync("data/cache/post/index.html") || true) {
-    console.log("NO INDEX UH OH");
+  if (!fs.existsSync("data/cache/post/index.html")) {
+    // console.log("NO INDEX UH OH");
     renderer.renderIndex("post", config, "./public/index.html", fs);
   }
   res.sendFile(__dirname + "/data/cache/post/index.html");
 });
-app.get("/style.css", (req, res) =>
-  res.sendFile(__dirname + "/public/style.css"),
-);
+app.get("/style.css", (req, res) => {
+  res.sendFile(__dirname + "/public/style.css");
+});
 app.get("/:name", (req, res) => {
   var name = req.params.name;
-  if (!fs.existsSync(`data/cache/${name}/index.html`) || true) {
-    console.log("NO INDEX FOR", name, "UH OH");
+  if (!fs.existsSync(`data/cache/${name}/index.html`)) {
+    // console.log("NO INDEX FOR", name, "UH OH");
     try {
       renderer.renderIndex(name, config, "./public/index.html", fs);
     } catch (e) {
@@ -62,7 +62,7 @@ app.get("/:name", (req, res) => {
   res.sendFile(__dirname + `/data/cache/${name}/index.html`);
 });
 
-app.get("/:name/:id", async (req, res) => {
+app.get("/:name/:id(*)", async (req, res) => {
   var target = config.dirs.filter((d) => d.name == req.params.name);
   if (target.length == 0) {
     res.status(404).send("Not found");
@@ -74,34 +74,54 @@ app.get("/:name/:id", async (req, res) => {
     return;
   }
   const id = req.params.id;
-  var outPath = safePath(`./data/cache/${target.name}/${id}.html`);
-  if (!fs.existsSync(safePath(`./${target.path}/${id}.md`))) {
-    res.status(404).send("Not found");
-    return;
-  }
-  if (!fs.existsSync(outPath) && target.cache) {
-    const success = await markdownUtils.render(
-      safePath(`${target.path}/${id}.md`),
-      outPath,
-      id.substring(0, 1).toUpperCase() + id.substring(1),
-      target.name,
-      fs,
-    );
-    if (!success) {
-      res.status(500).send("Internal server error");
+  if (target.raw && target.raw == true) {
+    console.log("Target is raw files");
+    const filePath = safePath(`./${target.path}/${id}`);
+    console.log("Trying", filePath);
+    if (!fs.existsSync(filePath)) {
+      res.status(404).send("Not Found");
       return;
     }
-    res.sendFile(outPath);
-  } else if (!target.cache) {
-    var mdString = await markdownUtils.renderString(
-      fs.readFileSync(safePath(`${target.path}/${id}.md`), "utf8"),
-      id.substring(0, 1).toUpperCase() + id.substring(1),
-      "/" + target.name,
-      mdTemplate,
-    );
-    res.send(mdString);
+
+    const stats = fs.statSync(filePath);
+    if (stats.isDirectory()) {
+      res.status(500).send("Internal Server Error");
+      // renderer.renderIndex(id, config, "./public/index.html", fs);
+      // res.sendFile(safePath(`./${target.path}/${id}/index.html`));
+    } else {
+      res.sendFile(filePath);
+    }
   } else {
-    res.sendFile(outPath);
+    var outPath = safePath(`./data/cache/${target.name}/${id}.html`);
+    if (!fs.existsSync(safePath(`./${target.path}/${id}.md`))) {
+      res.status(404).send("Not found");
+      return;
+    }
+    if (!fs.existsSync(outPath) && target.cache) {
+      console.log("Rendering", id);
+      const success = await markdownUtils.render(
+        safePath(`${target.path}/${id}.md`),
+        outPath,
+        id.substring(0, 1).toUpperCase() + id.substring(1),
+        target.name,
+        fs,
+      );
+      if (!success) {
+        res.status(500).send("Internal server error");
+        return;
+      }
+      res.sendFile(outPath);
+    } else if (!target.cache) {
+      var mdString = await markdownUtils.renderString(
+        fs.readFileSync(safePath(`${target.path}/${id}.md`), "utf8"),
+        id.substring(0, 1).toUpperCase() + id.substring(1),
+        "/" + target.name,
+        mdTemplate,
+      );
+      res.send(mdString);
+    } else {
+      res.sendFile(outPath);
+    }
   }
 });
 

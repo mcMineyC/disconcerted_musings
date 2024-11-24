@@ -23,15 +23,15 @@ function processMarkdownToHtml(mdString) {
   mdString = mdString.replace(/{{ESCAPED_BRACKET_(\[|\])}}/g, "$1");
 
   var highestLevel = 0;
-  mdString = mdString.replace(
-    /^(\s*)- (.*$)/gm,
-    function (match, indent, content) {
-      const spaces = indent.length;
-      const level = Math.floor(spaces / 2);
-      if (level > highestLevel) highestLevel = level;
-      return `<li class="indent-level-${level}">${content}</li>`;
-    },
-  );
+  mdString = mdString.replace(/^(\s*)- (.*$)/gm, (match, indent, content) => {
+    const spaces = indent.length;
+    const level = Math.floor(spaces / 2);
+    if (level > highestLevel) highestLevel = level;
+    return `<li class="indent-level-${level}">${content}</li>`;
+  });
+
+  // Wrap all li elements in a ul tag
+  mdString = mdString.replace(/(<li[^>]*>.*?<\/li>(?:\n|$))+/g, "<ul>$&</ul>");
 
   // mdString = mdString.replace(/^\d+\. (.*$)/gm, "<li>$1</li>");
   // mdString = mdString.replace(/(<li>.*<\/li>)/gs, "<ol>$1</ol>");

@@ -21,6 +21,7 @@ h6 {
   font-weight: var(--bold-weight);
 }
 html {
+  --mobile-padding: 10px;
   background-color: var(--background-color);
   color: var(--text-color);
   font-size: var(--font-size);
@@ -29,9 +30,12 @@ p {
   margin-top: var(--line-spacing) !important;
   margin-bottom: var(--line-spacing) !important;
 }
+li {
+  /* margin-left: 10px; */
+}
 li:before {
   content: "";
-  margin-left: calc(-16px + var(--list-marker-spacing));
+  margin-left: calc(var(--list-marker-spacing) - 5px);
   /* margin-right: var(--list-marker-spacing) !important; */
 }
 .empty-line {
@@ -56,6 +60,28 @@ li:before {
   max-width: 100%;
   min-width: 0;
 }
+@media only screen and (max-width: 720px) {
+  .header {
+    padding-left: var(--mobile-padding);
+  }
+  #content > * {
+    margin-left: var(--mobile-padding);
+  }
+  #back-button {
+    margin-right: 1rem;
+  }
+  ul {
+    padding-left: calc(var(--mobile-padding) + 4px);
+  }
+}
+@media only screen and (min-width: 721px) {
+  .center-content {
+    padding: 0 1.5rem;
+  }
+  ul {
+    padding-left: 14px;
+  }
+}
 .center-content {
   /* background-color: var(--middle-color); */
   background-color: color-mix(
@@ -63,5 +89,4 @@ li:before {
     var(--middle-color) 25%,
     var(--background-color)
   );
-  padding: 0 1.5rem;
 }

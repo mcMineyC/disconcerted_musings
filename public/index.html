@@ -14,7 +14,7 @@
     <style>
       :root {
         --indent: 20px;
-        --list-marker-spacing: 5px;
+        --list-marker-spacing: 3px;
         --line-spacing: 3px;
         --font-size: 16px;
         --background-color: #1f1f24;
@@ -57,13 +57,22 @@
           var(--middle-color) 25%,
           var(--background-color)
         );
-        padding: 1.5rem;
         padding-top: 0;
         padding-bottom: 3rem;
         height: 100%;
       }
-      .post-block {
-        margin: 2rem 0;
+      @media only screen and (min-width: 721px) {
+        /* .center-content {
+          padding: 1.5rem;
+        } */
+        .post-block {
+          margin: 1.5rem 0;
+        }
+      }
+      @media only screen and (max-width: 720px) {
+        .post-block {
+          margin: 2rem 1rem;
+        }
       }
       .post-block a {
         display: flex;

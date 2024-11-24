@@ -39,7 +39,15 @@ async function updateGitRepo(git, branch = "blog", path, fs) {
         /error: The following untracked working tree files would be overwritten by merge:\n([\s*\S.*]*)\nPlease move or remove them before you merge./gm;
       const match = err.toString().match(regex);
       if (match) {
-        const files = match[1].split("\n").map((f) => f.trim());
+        console.log(match);
+        const files = match[0]
+          .toString()
+          .split(
+            "error: The following untracked working tree files would be overwritten by merge:\n",
+          )[1]
+          .split("Please move or remove them before you merge.")
+          .map((f) => f.trim());
+        console.log(files);
         files.forEach((file) => {
           if (fs.existsSync(path + "/" + file)) {
             if (fs.lstatSync(path + "/" + file).isDirectory()) {

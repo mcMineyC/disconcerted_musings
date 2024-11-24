@@ -1,7 +1,4 @@
-function renderList(dirname, path, fs) {
-  console.log("Posts updating");
-  const posts = fs.readdirSync(path);
-  var htmlTemplate = `
+var postHtmlTemplate = `
     <div class="post-block">
       <a href="/{{ name }}/{{ id }}" style="display: flex; justify-content: space-between; align-items: center;">
         <h2>{{ title }}</h2>
@@ -9,7 +6,11 @@ function renderList(dirname, path, fs) {
       </a>
     </div>
   `;
+function renderList(dirname, path, fs) {
+  console.log("Posts updating");
+  const posts = fs.readdirSync(path);
   var plist = [];
+  var htmlTemplate = postHtmlTemplate;
   posts.forEach((post) => {
     var id = post.split(".")[0];
     var created = fs.statSync(`${path}/${post}`).mtime;
@@ -67,6 +68,17 @@ function renderIndex(name, config, templatePath, fs) {
     console.log("NO POST LIST UH OH");
     renderList(dirname, dirr.path, fs);
   }
+  index = index
+    .replace(
+      /\{\{ post-list \}\}/g,
+      fs.readFileSync(`data/cache/${name}/list.html`, "utf8"),
+    )
+    .replace(/\{\{ title \}\}/g, dirr.title || config.defaultTitle);
+  fs.writeFileSync(`data/cache/${name}/index.html`, index);
+}
+
+function renderFileIndexString(dirPath, templatePath, fs) {
+  var index = fs.readFileSync(templatePath, "utf8");
   index = index
     .replace(
       /\{\{ post-list \}\}/g,

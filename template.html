@@ -10,7 +10,7 @@
     <style>
       :root {
         --indent: 20px;
-        --list-marker-spacing: 5px;
+        --list-marker-spacing: 3px;
         --line-spacing: 3px;
         --font-size: 16px;
         --background-color: #1f1f24;
@@ -19,7 +19,7 @@
         --text-color: #dadada;
         --link-color: rgb(235, 139, 182);
         --bold-weight: 600;
-        --header-align: left;
+        --header-align: left; /* doesn't work */
         font-family: "Inter", "JetBrainsMono Nerd";
       }
       body{
@@ -46,6 +46,7 @@
     >
       <h2 class="header">{{ title }}</h2>
       <a
+        id="back-button"
         href="{{ back-location }}"
         style="
           color: var(--link-color);
