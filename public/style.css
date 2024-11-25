@@ -52,6 +52,10 @@ li:before {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+#content img {
+  width: 100%;
+  height: auto;
+}
 .header-box {
   padding-top: 1rem !important;
 }
