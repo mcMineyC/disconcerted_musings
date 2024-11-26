@@ -276,7 +276,7 @@ app.post("/clearCache", express.json(), async (req, res) => {
     try {
       deleteContainedFiles(safePath(__dirname + "/data/cache/" + dir));
     } catch (e) {
-      if (e.toString().includes("ENONET")) {
+      if (e.toString().includes("ENOENT")) {
         console.log("No cache to clear for", dir);
       } else {
         console.log("Error clearing cache for", dir, e);
