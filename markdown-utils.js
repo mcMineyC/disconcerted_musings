@@ -40,7 +40,10 @@ function processMarkdownToHtml(mdString) {
   });
 
   // Wrap all li elements in a ul tag
-  mdString = mdString.replace(/(<li[^>]*>.*?<\/li>(?:\n|$))+/g, "<ul>$&</ul>");
+  mdString = mdString.replace(
+    /(<li[^>]*>.*?<\/li>(?:\n|$))+/g,
+    "<ul>\n$&</ul>\n",
+  );
 
   // Blockquotes
   mdString = mdString.replace(/^\> (.*$)/gm, "<blockquote>$1</blockquote>");
@@ -52,8 +55,13 @@ function processMarkdownToHtml(mdString) {
     // Empty lines are replaced with a zero-width space
     if (line.trim() === "") return '<p class="empty-line">&#10240;&#x2800;</p>';
     //Don't wrap if it's a heading, list item, blockquote
-    if (line.match(/^<(h[1-6]|li|blockquote|ul|ol)/)) return line;
-    const match = line.match(/^(\s*)/)[0].replace(/\t/g, "  ");
+    if (
+      line.match(
+        /^<(h[1-6]|li|blockquote|ul|ol)|<\/(h[1-6]|li|blockquote|ul|ol)/,
+      )
+    )
+      return line;
+    const match = line.match(/^(\s*)/)[0];
     const spaces = match.length;
     // 1 indent = 2 spaces
     const level = Math.floor(spaces / 2);

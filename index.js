@@ -145,7 +145,7 @@ app.get("/:name/:id(*)", async (req, res) => {
       res.status(404).send("Not found");
       return;
     }
-    if (!fs.existsSync(outPath) && target.cache) {
+    if (!fs.existsSync(outPath) && target.cache == true) {
       console.log("Rendering", id);
       const success = await markdownUtils.render(
         safePath(`${target.path}/${id}.md`),
@@ -160,6 +160,7 @@ app.get("/:name/:id(*)", async (req, res) => {
       }
       res.sendFile(outPath);
     } else if (!target.cache) {
+      console.log("Rendering", id);
       var mdString = await markdownUtils.renderString(
         fs.readFileSync(safePath(`${target.path}/${id}.md`), "utf8"),
         id.substring(0, 1).toUpperCase() + id.substring(1),
