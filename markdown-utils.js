@@ -31,10 +31,6 @@ function processMarkdownToHtml(mdString) {
     '<a href="$2">$1</a>',
   );
 
-  // Restore escaped characters
-  // mdString = mdString.replace(/{{ESCAPED_(\*|#)}}/g, "$1");
-  // mdString = mdString.replace(/{{ESCAPED_BRACKET_(\[|\])}}/g, "$1");
-
   var highestLevel = 0;
   mdString = mdString.replace(/^(\s*)- (.*$)/gm, (match, indent, content) => {
     const spaces = indent.length;
@@ -46,9 +42,7 @@ function processMarkdownToHtml(mdString) {
   // Wrap all li elements in a ul tag
   mdString = mdString.replace(/(<li[^>]*>.*?<\/li>(?:\n|$))+/g, "<ul>$&</ul>");
 
-  // Old list processing
-  // mdString = mdString.replace(/^\d+\. (.*$)/gm, "<li>$1</li>");
-  // mdString = mdString.replace(/(<li>.*<\/li>)/gs, "<ol>$1</ol>");
+  // Blockquotes
   mdString = mdString.replace(/^\> (.*$)/gm, "<blockquote>$1</blockquote>");
 
   // Split into lines and wrap normal text in <p> tags
