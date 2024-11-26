@@ -60,7 +60,7 @@ app.get("/:name", (req, res) => {
     );
     return;
   }
-  if (!fs.existsSync(`data/cache/${name}/index.html`)) {
+  if (!fs.existsSync(`data/cache/${name}/index.html`) || !target.cache) {
     // console.log("NO INDEX FOR", name, "UH OH");
     try {
       renderer.renderIndex(name, config, "./public/index.html", fs);
