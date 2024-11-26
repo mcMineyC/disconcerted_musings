@@ -38,6 +38,9 @@ li:before {
   margin-left: calc(var(--list-marker-spacing) - 5px);
   /* margin-right: var(--list-marker-spacing) !important; */
 }
+li > * {
+  vertical-align: text-top;
+}
 .empty-line {
   margin-top: 0 !important;
   margin-bottom: 0 !important;

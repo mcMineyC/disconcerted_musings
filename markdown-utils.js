@@ -1,30 +1,39 @@
 function processMarkdownToHtml(mdString) {
-  // First, escape any escaped characters
+  // console.log("Rendering");
+  // First, tabs -> spaces
+  mdString = mdString.replace(/\t/g, "  ");
 
+  // Headings
   mdString = mdString.replace(/^# (.*$)/gm, "<h1>$1</h1>");
   mdString = mdString.replace(/^## (.*$)/gm, "<h2>$1</h2>");
   mdString = mdString.replace(/^### (.*$)/gm, "<h3>$1</h3>");
   mdString = mdString.replace(/^#### (.*$)/gm, "<h4>$1</h4>");
   mdString = mdString.replace(/^##### (.*$)/gm, "<h5>$1</h5>");
   mdString = mdString.replace(/^###### (.*$)/gm, "<h6>$1</h6>");
+
+  //Bold, ignore escaped characters
   mdString = mdString.replace(/\*\*([\s\S]*?)\*\*/g, "<strong>$1</strong>");
+
+  //Italics, ignore escaped characters
   mdString = mdString.replace(/(?<!\\)\*([\s\S]*?)(?<!\\)\*/g, "<em>$1</em>");
-  mdString = mdString.replace(/\\(\S)/gm, "$1");
   // mdString = mdString.replace(/\\\*/g, "*");
 
   // Then process the regular markdown links
+  // Images, ignore escaped characters
   mdString = mdString.replace(
-    /\!\[([^\]]+)\]\(([^\)]+)\)/g,
+    /\!\[([^\]]+)\]\((.*?(?=\)\s|$))\)/g,
     '<img src="$2">',
   );
+
+  // Links, ignore escaped characters
   mdString = mdString.replace(
-    /\[([^\]]+)\]\(([^\)]+)\)/g,
+    /(?<!\\)\[([^\]]+)(?<!\\)\]\(([^\)]+)(?<!\\)\)/g,
     '<a href="$2">$1</a>',
   );
 
   // Restore escaped characters
   // mdString = mdString.replace(/{{ESCAPED_(\*|#)}}/g, "$1");
-  mdString = mdString.replace(/{{ESCAPED_BRACKET_(\[|\])}}/g, "$1");
+  // mdString = mdString.replace(/{{ESCAPED_BRACKET_(\[|\])}}/g, "$1");
 
   var highestLevel = 0;
   mdString = mdString.replace(/^(\s*)- (.*$)/gm, (match, indent, content) => {
@@ -37,21 +46,27 @@ function processMarkdownToHtml(mdString) {
   // Wrap all li elements in a ul tag
   mdString = mdString.replace(/(<li[^>]*>.*?<\/li>(?:\n|$))+/g, "<ul>$&</ul>");
 
+  // Old list processing
   // mdString = mdString.replace(/^\d+\. (.*$)/gm, "<li>$1</li>");
   // mdString = mdString.replace(/(<li>.*<\/li>)/gs, "<ol>$1</ol>");
   mdString = mdString.replace(/^\> (.*$)/gm, "<blockquote>$1</blockquote>");
 
   // Split into lines and wrap normal text in <p> tags
+  mdString = mdString.replace(/\\(\S)/gm, "$1");
   const lines = mdString.split("\n");
   const wrappedLines = lines.map((line) => {
+    // Empty lines are replaced with a zero-width space
     if (line.trim() === "") return '<p class="empty-line">&#10240;&#x2800;</p>';
+    //Don't wrap if it's a heading, list item, blockquote
     if (line.match(/^<(h[1-6]|li|blockquote|ul|ol)/)) return line;
     const match = line.match(/^(\s*)/)[0].replace(/\t/g, "  ");
     const spaces = match.length;
+    // 1 indent = 2 spaces
     const level = Math.floor(spaces / 2);
     if (level > highestLevel) highestLevel = level;
     return `<p class="normal-text indent-level-${level}">${line}</p>`;
   });
+  // Join the lines back together
   mdString = wrappedLines.join("\n");
   return {
     content: mdString.trim(),
