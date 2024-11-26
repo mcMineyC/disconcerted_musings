@@ -40,13 +40,13 @@ app.get("/:name", (req, res) => {
     res.status(404).send(fancyError("Not found"));
     return;
   }
-  if (target.raw && target.raw == true) {
-    if (!target.indexed) {
-      res
-        .status(401)
-        .send(fancyError("Indexing not turned on for this endpoint"));
-      return;
-    }
+  if (!target.indexed) {
+    res
+      .status(401)
+      .send(fancyError("Indexing not turned on for this endpoint"));
+    return;
+  }
+  if (target.raw == true) {
     // res.status(401).send("Unauthorized");
     res.send(
       renderer.renderFileIndexString(
@@ -60,7 +60,10 @@ app.get("/:name", (req, res) => {
     );
     return;
   }
-  if (!fs.existsSync(`data/cache/${name}/index.html`) || !target.cache) {
+  if (
+    !fs.existsSync(`data/cache/${name}/index.html`) ||
+    target.cache == false
+  ) {
     // console.log("NO INDEX FOR", name, "UH OH");
     try {
       renderer.renderIndex(name, config, "./public/index.html", fs);
@@ -186,9 +189,10 @@ app.post("/update", express.json(), async (req, res) => {
   }
   // var dirTargets
   var dirTargets = config.dirs.filter(
-    (d) => !d.raw || d.raw == false || d.path.includes(target.directory),
+    (d) =>
+      (d.raw == false || d.indexed == true) && d.path.includes(target.path),
   );
-  if (!dirTargets.length == 0) dirTargets = null;
+  if (dirTargets.length == 0) dirTargets = null;
   if (!target) {
     res.status(404).send({ status: "error", message: "Repository not found" });
     return;
@@ -220,24 +224,34 @@ app.post("/update", express.json(), async (req, res) => {
       if (dirTargets != null) {
         gitResponse.changedFiles.forEach((file) => {
           const id = file.split("/").pop().split(".")[0];
-          if (!file.startsWith())
+          if (file.endsWith(".md")) {
             console.log(`checking for cached file for ${id}`);
-          dirTargets.forEach((dt) => {
-            if (fs.existsSync(safePath(`./data/cache/${dt.name}/${id}.html`))) {
-              console.log(`removing cached file for ${id} from ${dt.name}`);
-              fs.unlinkSync(safePath(`./data/cache/${dt.name}/${id}.html`));
+            dirTargets.forEach((dt) => {
+              if (
+                fs.existsSync(safePath(`./data/cache/${dt.name}/${id}.html`))
+              ) {
+                console.log(`removing cached file for ${id} from ${dt.name}`);
+                fs.unlinkSync(safePath(`./data/cache/${dt.name}/${id}.html`));
+              }
+            });
+          }
+        });
+        dirTargets.forEach((dir) => {
+          if (dir.cache == true || (dir.indexed == true && dir.raw == false)) {
+            console.log("Purging cached indexes for", dir.name);
+            try {
+              fs.unlinkSync(`./data/cache/${dir.name}/list.html`);
+              console.log("\tRemoved list.html for", dir.name);
+            } catch (error) {
+              console.log("\tNo post list to delete");
             }
             try {
-              fs.unlinkSync(`./data/cache/${dt.name}/list.html`);
+              fs.unlinkSync(`./data/cache/${dir.name}/index.html`);
+              console.log("\tRemoved index.html for", dir.name);
             } catch (error) {
-              console.log("No post list to delete");
+              console.log("\tNo index to delete");
             }
-            try {
-              fs.unlinkSync(`./data/cache/${dt.name}/index.html`);
-            } catch (error) {
-              console.log("No index to delete");
-            }
-          });
+          }
         });
       }
     } catch (error) {

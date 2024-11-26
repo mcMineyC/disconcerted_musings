@@ -11,22 +11,25 @@ function renderList(dirname, path, fs) {
   const posts = fs.readdirSync(path);
   var plist = [];
   var htmlTemplate = postHtmlTemplate;
-  posts.forEach((post) => {
-    var id = post.split(".")[0];
-    var created = fs.statSync(`${path}/${post}`).mtime;
-    let prettyTitle = id.substring(0, 1).toUpperCase() + id.substring(1);
-    if (id.match(/^(\d{1,2})-(\d{1,2})-(\d{2}|\d{4})$/)) {
-      prettyTitle = "Somebody's Daily Note: " + prettyTitle;
-    }
-    var modifiedDate = new Date(
-      created.getTime() - created.getTimezoneOffset() * 60000,
-    );
-    plist.push({
-      id: id,
-      title: prettyTitle,
-      modified: modifiedDate,
+  posts
+    .filter((p) => p.substring(0, 1) != ".")
+    .forEach((post) => {
+      console.log('"' + post + '"');
+      var id = post.split(".")[0];
+      var created = fs.statSync(`${path}/${post}`).mtime;
+      let prettyTitle = id.substring(0, 1).toUpperCase() + id.substring(1);
+      if (id.match(/^(\d{1,2})-(\d{1,2})-(\d{2}|\d{4})$/)) {
+        prettyTitle = "Somebody's Daily Note: " + prettyTitle;
+      }
+      var modifiedDate = new Date(
+        created.getTime() - created.getTimezoneOffset() * 60000,
+      );
+      plist.push({
+        id: id,
+        title: prettyTitle,
+        modified: modifiedDate,
+      });
     });
-  });
   plist.sort((a, b) => b.modified - a.modified);
   plist = plist.map((post) => {
     return htmlTemplate
