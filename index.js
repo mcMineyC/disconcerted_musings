@@ -264,6 +264,21 @@ app.post("/update", express.json(), async (req, res) => {
   }
 });
 
+app.post("/clearCache", express.json(), async (req, res) => {
+  const requestToken = req.body.token;
+  if (!superSecretToken || superSecretToken !== requestToken) {
+    res.status(401).send({ status: "unauthorized" });
+    return;
+  }
+  var dirTargets = config.dirs
+    .filter((d) => d.raw == false && (d.cache == true || d.indexed == true))
+    .map((d) => d.name);
+  dirTargets.forEach((dir) => {
+    deleteContainedFiles(safePath(__dirname + "/data/cache/" + dir));
+  });
+  res.send({ status: "success" });
+});
+
 async function main() {
   console.log("Starting server...");
   console.log("\tSuper secret token is: ", superSecretToken);
@@ -321,4 +336,18 @@ function lookupByPath(path) {
 }
 function fancyError(text) {
   return `<center><h1>${text}</h1></center>`;
+}
+function deleteContainedFiles(path) {
+  const files = fs.readdirSync(path);
+
+  for (const file of files) {
+    const filePath = `${path}/${file}`;
+    if (fs.statSync(filePath).isDirectory()) {
+      console.log(`Deleting directory ${filePath}`);
+      deleteContainedFiles(filePath);
+    } else {
+      console.log(`Deleting file ${filePath}`);
+      fs.unlinkSync(filePath);
+    }
+  }
 }
