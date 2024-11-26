@@ -273,6 +273,7 @@ app.post("/clearCache", express.json(), async (req, res) => {
   var dirTargets = config.dirs
     .filter((d) => d.raw == false && (d.cache == true || d.indexed == true))
     .map((d) => d.name);
+  console.log("Clearing", dirTargets.length, "directories");
   dirTargets.forEach((dir) => {
     deleteContainedFiles(safePath(__dirname + "/data/cache/" + dir));
   });
@@ -339,7 +340,6 @@ function fancyError(text) {
 }
 function deleteContainedFiles(path) {
   const files = fs.readdirSync(path);
-
   for (const file of files) {
     const filePath = `${path}/${file}`;
     if (fs.statSync(filePath).isDirectory()) {
