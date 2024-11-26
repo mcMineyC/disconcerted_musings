@@ -270,7 +270,7 @@ app.post("/clearCache", express.json(), async (req, res) => {
     res.status(401).send({ status: "unauthorized" });
     return;
   }
-  var dirTargets = config.dirs.filter((d) => d.raw == false).map((d) => d.name);
+  var dirTargets = config.dirs.map((d) => d.name);
   console.log("Clearing", dirTargets.length, "directories");
   dirTargets.forEach((dir) => {
     try {
