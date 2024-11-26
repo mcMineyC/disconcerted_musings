@@ -184,7 +184,10 @@ app.post("/update", express.json(), async (req, res) => {
     });
     return;
   }
-  var dirTargets = config.dirs.filter((d) => !d.raw || d.raw == false);
+  // var dirTargets
+  var dirTargets = config.dirs.filter(
+    (d) => !d.raw || d.raw == false || d.path.includes(target.directory),
+  );
   if (!dirTargets.length == 0) dirTargets = null;
   if (!target) {
     res.status(404).send({ status: "error", message: "Repository not found" });
