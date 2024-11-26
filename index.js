@@ -270,12 +270,18 @@ app.post("/clearCache", express.json(), async (req, res) => {
     res.status(401).send({ status: "unauthorized" });
     return;
   }
-  var dirTargets = config.dirs
-    .filter((d) => d.raw == false && (d.cache == true || d.indexed == true))
-    .map((d) => d.name);
+  var dirTargets = config.dirs.filter((d) => d.raw == false).map((d) => d.name);
   console.log("Clearing", dirTargets.length, "directories");
   dirTargets.forEach((dir) => {
-    deleteContainedFiles(safePath(__dirname + "/data/cache/" + dir));
+    try {
+      deleteContainedFiles(safePath(__dirname + "/data/cache/" + dir));
+    } catch (e) {
+      if (e.toString().includes("ENONET")) {
+        console.log("No cache to clear for", dir);
+      } else {
+        console.log("Error clearing cache for", dir, e);
+      }
+    }
   });
   res.send({ status: "success" });
 });
