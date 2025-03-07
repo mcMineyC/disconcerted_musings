@@ -40,4 +40,9 @@ Example config:
   - directory: the directory (relative to index.js) that the repo resides in
 - dirs: a list of objects defining the directories served (essentially collections)
   - raw: determines whether or not files will be processed (needed for assets such as images)
-  - path: the path relative to index.js
+  - path: the path relative to index.js that the collection originates from
+  - name: the identifier for the collection
+  - indexed: whether or not an index of files in said collection is served
+  - public: ??? (mystery option, I forgot what it does)
+  - token: a token used to authenticate users and restrict access to collections
+  - cache: if the content should be cached after a render (essentially, whether it should be rendered on the fly or rendered once per update)
