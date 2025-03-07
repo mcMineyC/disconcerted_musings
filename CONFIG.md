@@ -1,5 +1,6 @@
 # Configuration
 Copy config.json.example to example.json
+Make sure the directories specified in the "git" option exist and are git repos that are properly set up.  In the future I might change the config to only specify "sources", so that there can be a Git source, local source, remote source, etc.
 
 Example config:
 ```json
@@ -45,3 +46,4 @@ Example config:
   - indexed: whether or not an index of files in said collection is served
   - token: a token used to authenticate users and restrict access to collections
   - cache: if the content should be cached after a render (essentially, whether it should be rendered on the fly or rendered once per update)
+ 
