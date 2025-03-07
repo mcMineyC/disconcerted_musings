@@ -53,6 +53,7 @@ function renderList(dirname, path, fs) {
 function renderIndex(name, config, templatePath, fs) {
   var dirr = { name: "nullisfalseandyoucanttellmeotherwise12345!" };
   for (var x = 0; x < config.dirs.length; x++) {
+    console.log(name, "==", config.dirs[x].name)
     if (config.dirs[x].name == name) {
       console.log("Found dir");
       dirr = config.dirs[x];

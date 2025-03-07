@@ -24,11 +24,11 @@ app.use(function (req, res, next) {
 });
 
 app.get("/", (req, res) => {
-  if (!fs.existsSync("data/cache/post/index.html")) {
+  if (!fs.existsSync(`data/cache/${config.mainIndex}/index.html`)) {
     // console.log("NO INDEX UH OH");
-    renderer.renderIndex("post", config, "./public/index.html", fs);
+    renderer.renderIndex(config.mainIndex, config, "./public/index.html", fs);
   }
-  res.sendFile(__dirname + "/data/cache/post/index.html");
+  res.sendFile(`${__dirname}/data/cache/${config.mainIndex}/index.html`);
 });
 app.get("/style.css", (req, res) => {
   res.sendFile(__dirname + "/public/style.css");
@@ -69,7 +69,6 @@ app.get("/:name", (req, res) => {
       renderer.renderIndex(name, config, "./public/index.html", fs);
     } catch (e) {
       if (e == "dirNotFoundError") {
-        res.status(404).send(fancyError("Not found"));
         console.log("You screwed something up in the config.");
         console.log(
           "Some help:\n\tDirname:",
@@ -77,6 +76,7 @@ app.get("/:name", (req, res) => {
           "\n\tRelevant entry:",
           target,
         );
+        res.status(404).send(fancyError("Not found"));
         return;
       } else if (e == "dirNotSupposedToBeIndexedError") {
         res
