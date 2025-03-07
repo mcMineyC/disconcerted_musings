@@ -1,6 +1,7 @@
 # Configuration
 Copy config.json.example to example.json
 Make sure the directories specified in the "git" option exist and are git repos that are properly set up.  In the future I might change the config to only specify "sources", so that there can be a Git source, local source, remote source, etc.
+If you have a private repo that houses the files, you will need to be logged into your account to pull changes (when using Github I recommend [their gh tool](https://cli.github.com/) since it supports a seamless device activation strategy)
 
 Example config:
 ```json
@@ -30,10 +31,14 @@ Example config:
   ]
 }
 ```
+## Terminology
+Collection/directory: essentially a folder containing published content
+Index: a list of Markdown files in a given collection
+Git repo: a collection of folders hosted on any Git provider (GitHub, GitLab, BitBucket, self-hosted, etc) that tracks changes over time
 
 ## Breakdown
 - port: what it says on the tin, what port it listens on
-- super_secret_token: the token used for the /update endpoint
+- super_secret_token: the token used for the /update endpoint.  DO NOT, under ==**ANY**== circumstances give out this token or publish it in your repos
 - mainIndex: the directory that will be shown upon navigating to /
 - defaultTitle: the main title for all directories unless otherwise specified
 - git: a list of objects defining the Git repositories as data sources
