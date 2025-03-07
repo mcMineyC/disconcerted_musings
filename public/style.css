@@ -12,6 +12,13 @@ a:hover {
 strong {
   font-weight: calc(var(--bold-weight) + 100);
 }
+mark{
+  background-color: var(--highlight-color);
+  color: var(--highlight-text-color);
+  padding-left: 0.25em;
+  padding-right: 0.25em;
+  border-radius: 0.25em;
+}
 h1,
 h2,
 h3,

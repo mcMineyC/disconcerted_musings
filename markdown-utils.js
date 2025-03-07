@@ -14,6 +14,9 @@ function processMarkdownToHtml(mdString) {
   //Bold, ignore escaped characters
   mdString = mdString.replace(/\*\*([\s\S]*?)\*\*/g, "<strong>$1</strong>");
 
+  //Highlight
+  mdString = mdString.replace(/==([\s\S]*?)==/g, "<mark>$1</mark>");
+
   //Italics, ignore escaped characters
   mdString = mdString.replace(/(?<!\\)\*([\s\S]*?)(?<!\\)\*/g, "<em>$1</em>");
   // mdString = mdString.replace(/\\\*/g, "*");
@@ -98,10 +101,9 @@ function renderMarkdown(mdContent, title, backLocation, mdTemplate) {
     .replace(/\{\{ list-level-css \}\}/g, htmlObject.listStyling);
 }
 
-async function renderMarkdownFile(inPath, outPath, title, subdirName, fs) {
+async function renderMarkdownFile(inPath, outPath, title, subdirName, mdTemplate, fs) {
   try {
     const mdContent = fs.readFileSync(inPath, "utf8");
-    const mdTemplate = fs.readFileSync("./template.html", "utf8");
     const renderedMd = renderMarkdown(
       mdContent,
       title,

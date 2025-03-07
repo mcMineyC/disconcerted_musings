@@ -11,7 +11,7 @@ var git = [];
 
 const superSecretToken =
   process.env.SUPER_SECRET_TOKEN || config.superSecretToken;
-const mdTemplate = fs.readFileSync("./template.html", "utf8");
+const mdTemplate = fs.readFileSync("./public/post_template.html", "utf8");
 const path = require("path");
 
 app.use(function (req, res, next) {
@@ -152,6 +152,7 @@ app.get("/:name/:id(*)", async (req, res) => {
         outPath,
         id.substring(0, 1).toUpperCase() + id.substring(1),
         target.name,
+        mdTemplate,
         fs,
       );
       if (!success) {
