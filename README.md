@@ -11,7 +11,7 @@ This project is yet another Markdown content hosting platform.  The goal of this
 
 # Usage
 ## General use
-Each directory specified in config.json will be exposed at {base url}/{collection}
+Each directory specified in config.json will be exposed at ```{base url}/{collection}```.  e.g. a base url of ```https://google.com``` and collection name ```tutorials``` will be exposed at ```https://google.com/tutorials```, provided indexing is turned on for that directory.
 When setting ```raw: false```, file names are not needed.  However, be aware that trying to process raw files (images, audio, etc) as markdown content (NOT setting ```raw: true```) will cataclysmically fail.
 
 ## Update endpoint
