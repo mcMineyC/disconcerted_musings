@@ -46,6 +46,10 @@ app.get("/:name", (req, res) => {
       .send(fancyError("Indexing not turned on for this endpoint"));
     return;
   }
+  if (target.token != "undefined" && req.query.token != target.token) {
+    res.status(401).send(fancyError("Unauthorized"));
+    return;
+  }
   if (target.raw == true) {
     // res.status(401).send("Unauthorized");
     res.send(
