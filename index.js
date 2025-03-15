@@ -116,6 +116,7 @@ app.get("/:name/:id(*)", async (req, res) => {
     }
     const stats = fs.statSync(filePath);
     if (stats.isDirectory() && target.indexed) {
+      console.log("Sending sir index for", filePath);
       res.send(
         renderer.renderFileIndexString(
           safePath(filePath),
@@ -171,6 +172,7 @@ app.get("/:name/:id(*)", async (req, res) => {
       res.send(mdString);
     } else {
       res.sendFile(outPath);
+      console.log("Sending", id);
     }
   }
 });
