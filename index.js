@@ -176,7 +176,7 @@ app.get("/:name/:id(*)", async (req, res) => {
       res.send(mdString);
     } else {
       res.sendFile(outPath);
-      console.log("Sending", target+"/"+id);
+      console.log("Sending", target.name+"/"+id);
     }
   }
 });
