@@ -1,0 +1,62 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/style.css" />
+    <link rel="stylesheet" href="/card.css" />
+    <title>{{ title }}</title>
+    <style>
+      :root {
+        --indent: 20px;
+        --list-marker-spacing: 3px;
+        --line-spacing: 3px;
+        --font-size: 16px;
+        /*--background-color: #201d23;*/
+        --background-color: #151515;
+        --middle-color: #303035;
+        --top-color: #414045;
+        --text-color: #dadada;
+        --accent-color: #eb8bb6;
+        --bold-weight: 600;
+        --header-align: left;
+        font-family: "Inter", "JetBrainsMono Nerd";
+      }
+      /*
+      body {
+        margin: 0;
+      }
+      body {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        width: 100%;
+        height: 100vh;
+        margin: 0;
+      }*/
+      html{
+        background-color: var(--background-color);
+      }
+    </style>
+  </head>
+  <body class="center-card">
+    <div class="card width-bound">
+      <h2>Unauthorized</h2>
+        <label class="input">
+          <input class="input__field" type="text" placeholder=" " />
+          <span class="input__label">Token</span>
+        </label>
+        <div class="button-group">
+          <button>Send</button>
+          <button type="reset">Reset</button>
+        </div>
+      </div>
+  </body>
+</html>

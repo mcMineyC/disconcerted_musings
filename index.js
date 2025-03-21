@@ -30,9 +30,9 @@ app.get("/", (req, res) => {
   }
   res.sendFile(`${__dirname}/data/cache/${config.mainIndex}/index.html`);
 });
-app.get("/style.css", (req, res) => {
-  res.sendFile(__dirname + "/public/style.css");
-});
+app.get("/style.css", (req, res) => res.sendFile(__dirname + "/public/style.css"));
+app.get("/card.css", (req, res) => res.sendFile(__dirname + "/public/card.css"));
+
 app.get("/:name", (req, res) => {
   var name = req.params.name;
   var target = lookupByName(name);

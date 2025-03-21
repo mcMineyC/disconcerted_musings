@@ -1,0 +1,124 @@
+/*@import url("https://rsms.me/inter/inter.css");*/
+.card {
+  /*--middle-color: var(--middle-color);*/
+  /*--background-color: #212121;*/
+  /*--background-color: var(--background-color);*/
+  /*--accent-color: #fab700;*/
+  /*--accent-color: var(--accent-color);*/
+  /*--middle-color: var(--middle-color);*/
+  /*--text-color: var(--text-color);*/
+  /*--accent-color: var(--accent-color);*/
+  /*--top-color: var(--top-color);*/
+  --size-bezel: .5rem;
+  --size-radius: 4px;
+  line-height: 1.4;
+  /*font-family: "Inter", sans-serif;*/
+  font-size: calc(.6rem + .4vw);
+  color: var(--text-color);
+  /*background: var(--middle-color);*/
+  font-weight: 300;
+  padding: 0 calc(var(--size-bezel) * 3);
+}
+
+
+.card {
+  background: var(--middle-color);
+  padding: calc(4 * var(--size-bezel));
+  /*margin-top: calc(4 * var(--size-bezel));*/
+  border-radius: var(--size-radius);
+  border: 3px solid var(--top-color, currentColor);
+  box-shadow: 0.5rem 0.5rem 0 var(--top-color, currentColor);
+}
+/*
+.card--inverted {
+  --middle-color: var(--background-color);
+  color: var(--middle-color);
+  --top-color: var(--accent-color);
+}
+.card--accent {
+  --middle-color: var(--accent-color);
+  --accent-color: var(--middle-color);
+  color: var(--background-color);
+}
+*/
+.card *:first-child {
+  margin-top: 0;
+}
+
+.width-bound {
+  max-width: 40rem;
+  /*padding: 1rem;*/
+}
+
+.input {
+  position: relative;
+}
+.input__label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: calc(var(--size-bezel) * 0.75) calc(var(--size-bezel) * .5);
+  margin: calc(var(--size-bezel) * 0.75 + 3px) calc(var(--size-bezel) * .5);
+  background: pink;
+  white-space: nowrap;
+  transform: translate(0, 0);
+  transform-origin: 0 0;
+  background: var(--middle-color);
+  transition: transform 120ms ease-in;
+  font-weight: bold;
+  line-height: 1.2;
+}
+.input__field {
+  box-sizing: border-box;
+  display: block;
+  width: 100%;
+  border: 3px solid currentColor;
+  padding: calc(var(--size-bezel) * 1.5) var(--size-bezel);
+  color: currentColor;
+  background: transparent;
+  border-radius: var(--size-radius);
+}
+.input__field:not(:-moz-placeholder-shown) + .input__label {
+  transform: translate(0.25rem, -65%) scale(0.8);
+  color: var(--accent-color);
+}
+.input__field:not(:-ms-input-placeholder) + .input__label {
+  transform: translate(0.25rem, -65%) scale(0.8);
+  color: var(--accent-color);
+}
+.input__field:focus + .input__label, .input__field:not(:placeholder-shown) + .input__label {
+  transform: translate(0.25rem, -65%) scale(0.8);
+  color: var(--accent-color);
+}
+
+.button-group {
+  margin-top: calc(var(--size-bezel) * 2.5);
+}
+
+button {
+  color: currentColor;
+  padding: var(--size-bezel) calc(var(--size-bezel) * 2);
+  background: var(--accent-color);
+  border: none;
+  border-radius: var(--size-radius);
+  font-weight: 900;
+}
+button[type=reset] {
+  background: var(--middle-color);
+  font-weight: 200;
+}
+
+button + button {
+  margin-left: calc(var(--size-bezel) * 2);
+}
+
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  margin-right: 0.5em;
+}
+
+.hidden {
+  display: none;
+}
