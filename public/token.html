@@ -25,6 +25,7 @@
         --top-color: #414045;
         --text-color: #dadada;
         --accent-color: #eb8bb6;
+        --error-color: #F44336;
         --bold-weight: 600;
         --header-align: left;
         font-family: "Inter", "JetBrainsMono Nerd";
@@ -41,22 +42,55 @@
         height: 100vh;
         margin: 0;
       }*/
+      body, html{
+        margin: 0;
+        height: 100%;
+      }
       html{
         background-color: var(--background-color);
       }
+      @media only screen and (min-width: 40rem) {
+        .width-bound{
+          width: 30rem;
+        }
+      }
+      @media only screen and (max-width: 40rem) {
+        .width-bound{
+          width: 60%;
+        }
+      }
+
     </style>
   </head>
   <body class="center-content">
     <div class="card width-bound">
       <h2>Unauthorized</h2>
+      <h2 class="text-error color-error" style="display: none">Invalid token</h3>
         <label class="input">
           <input class="input__field" type="text" placeholder=" " />
           <span class="input__label">Token</span>
         </label>
         <div class="button-group">
-          <button>Send</button>
+          <button type="submit">Send</button>
           <button type="reset">Reset</button>
         </div>
       </div>
   </body>
+  <script>
+    var error = document.querySelector("h2.text-error");
+    var input = document.querySelector(".input__field");
+    var button = document.querySelector("button[type='submit']");
+    var reset = document.querySelector("button[type='reset']");
+    var url = new URL(window.location.href);
+    input.value = url.searchParams.get("token");
+    if(url.searchParams.has("failed")){
+      error.style.display = "block";
+    }
+    reset.addEventListener("click", () => input.value = "");
+    button.addEventListener("click", () => {
+      var url = new URL(window.location.href);
+      url.searchParams.set("token", input.value);
+      window.location.replace(url.toString());
+    });
+  </script>
 </html>

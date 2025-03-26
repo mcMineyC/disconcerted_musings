@@ -96,6 +96,10 @@ li > * {
   align-items: center;
 }
 
+.color-error{
+  color: var(--error-color);
+}
+
 /*.token-form-inner {*/
 /*  margin: 2rem 2rem;*/
 /*  flex-direction: column;*/
