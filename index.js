@@ -47,7 +47,8 @@ app.get("/:name", (req, res) => {
     return;
   }
   if (target.token != "undefined" && req.query.token != target.token) {
-    res.status(401).send(fancyError("Unauthorized"));
+    //res.status(401).send(fancyError("Unauthorized"));
+    res.status(401).sendFile("./public/token.html");
     return;
   }
   if (target.raw == true) {
@@ -106,7 +107,8 @@ app.get("/:name/:id(*)", async (req, res) => {
     return;
   }
   if (target.token != "undefined" && req.query.token != target.token) {
-    res.status(401).send(fancyError("Unauthorized"));
+   //res.status(401).send(fancyError("Unauthorized"));
+    res.status(401).sendFile("./public/token.html");
     return;
   }
   const id = req.params.id;
