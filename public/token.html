@@ -83,7 +83,7 @@
     var reset = document.querySelector("button[type='reset']");
     var url = new URL(window.location.href);
     input.value = url.searchParams.get("token");
-    if(url.searchParams.has("failed")){
+    if(url.searchParams.has("token")){
       error.style.display = "block";
     }
     reset.addEventListener("click", () => input.value = "");
