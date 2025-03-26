@@ -17,13 +17,13 @@
         --middle-color: #303035;
         --top-color: #414045;
         --text-color: #dadada;
-        --link-color: #eb8bb6;
+        --accent-color: #eb8bb6;
         --error-color: #F44336;
-        --highlight-color: var(--link-color);
+        --highlight-color: var(--accent-color);
         --highlight-text-color: color-mix(
           in srgb,
           #080808 75%,
-          var(--link-color) 25%
+          var(--accent-color) 25%
         );
         --bold-weight: 600;
         --header-align: left; /* doesn't work */
@@ -38,6 +38,12 @@
       }
       #content{
         padding-bottom: 3rem;
+      }
+      #back-button {
+        color: var(--accent-color);
+        text-decoration: none;
+        display: block;
+        margin-bottom: 0.5rem;
       }
       {{ list-level-css }}
     </style>
@@ -55,14 +61,7 @@
       <a
         id="back-button"
         href="{{ back-location }}"
-        style="
-          color: var(--link-color);
-          text-decoration: none;
-          display: block;
-          margin-bottom: 0.5rem;
-        "
-        >← Back</a
-      >
+      >← Back</a>
     </div>
     <div id="content" class="bounded-width center-content">{{ content }}</div>
   </body>
